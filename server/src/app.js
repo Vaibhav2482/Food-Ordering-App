@@ -7,6 +7,8 @@ import CategoryRoutes from "./routes/CategoryRoutes.js";
 import notFound from "./middleware/NotFound.js";
 import errorHandler from "./middleware/ErrorHandler.js";
 
+import MenuRoutes from "./routes/MenuRoutes.js";
+import CustomerRoutes from "./routes/CustomerRoutes.js";
 const app = express();
 
 // Middlewares
@@ -24,7 +26,8 @@ app.get("/api/v1/health", (req, res) => {
 // API Routes
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/categories", CategoryRoutes);
-
+app.use("/api/v1/menu", MenuRoutes);
+app.use("/api/v1/customers", CustomerRoutes);
 // Not Found Middleware
 app.use(notFound);
 

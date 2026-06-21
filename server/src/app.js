@@ -9,8 +9,9 @@ import errorHandler from "./middleware/ErrorHandler.js";
 
 import MenuRoutes from "./routes/MenuRoutes.js";
 import CustomerRoutes from "./routes/CustomerRoutes.js";
+import OrderRoutes from "./routes/OrderRoutes.js";
 const app = express();
-
+import CustomerAddressRoutes from "./routes/CustomerAddressRoutes.js";
 // Middlewares
 app.use(cors());
 app.use(express.json());
@@ -28,6 +29,9 @@ app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/categories", CategoryRoutes);
 app.use("/api/v1/menu", MenuRoutes);
 app.use("/api/v1/customers", CustomerRoutes);
+app.use("/api/v1/orders", OrderRoutes);
+app.use("/api/v1/customer-addresses", CustomerAddressRoutes);
+
 // Not Found Middleware
 app.use(notFound);
 

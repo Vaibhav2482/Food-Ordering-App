@@ -85,18 +85,10 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
         orderStatus
     );
 
-    if (!result.success) {
-        return errorResponse(
-            res,
-            result.message,
-            400
-        );
-    }
-
     return successResponse(
         res,
-        result.data,
-        result.message
+        result,
+        "Order status updated successfully."
     );
 
 });

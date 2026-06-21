@@ -55,13 +55,13 @@ export const getOrdersByCustomer = async (customerId) => {
 
 };
 
-export const updateOrderStatus = async (orderId, orderStatus) => {
+export const updateOrderStatus = async (id, orderStatus) => {
 
     const pool = await sql.connect();
 
     const result = await pool
         .request()
-        .input("OrderId", sql.Int, orderId)
+        .input("OrderId", sql.Int, id)
         .input("OrderStatus", sql.NVarChar(50), orderStatus)
         .execute("sp_UpdateOrderStatus");
 

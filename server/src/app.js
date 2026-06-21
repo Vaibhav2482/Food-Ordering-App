@@ -12,6 +12,23 @@ import CustomerRoutes from "./routes/CustomerRoutes.js";
 import OrderRoutes from "./routes/OrderRoutes.js";
 const app = express();
 import CustomerAddressRoutes from "./routes/CustomerAddressRoutes.js";
+import CartRoutes from "./routes/CartRoutes.js";
+import CheckoutRoutes from "./routes/CheckoutRoutes.js";
+import PaymentRoutes from "./routes/PaymentRoutes.js";
+import DashboardRoutes from "./routes/DashboardRoutes.js";
+import ReportRoutes from "./routes/ReportRoutes.js";
+import { swaggerDocs } from "./config/swagger.js";
+
+
+
+
+
+
+
+
+
+
+
 // Middlewares
 app.use(cors());
 app.use(express.json());
@@ -31,6 +48,20 @@ app.use("/api/v1/menu", MenuRoutes);
 app.use("/api/v1/customers", CustomerRoutes);
 app.use("/api/v1/orders", OrderRoutes);
 app.use("/api/v1/customer-addresses", CustomerAddressRoutes);
+app.use("/api/v1/cart", CartRoutes);
+app.use("/api/v1/checkout", CheckoutRoutes);
+app.use("/api/v1/payments", PaymentRoutes);
+app.use("/api/v1/dashboard", DashboardRoutes);
+app.use("/api/v1/reports", ReportRoutes);
+
+
+swaggerDocs(app);
+
+
+
+
+
+
 
 // Not Found Middleware
 app.use(notFound);

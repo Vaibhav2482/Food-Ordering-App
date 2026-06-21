@@ -1,16 +1,8 @@
-import MainLayout from "./components/layout/MainLayout";
+import AppRoutes from "./routes/AppRoutes";
 
 function App() {
 
-    return (
-
-        <MainLayout>
-
-            <h1>Dashboard</h1>
-
-        </MainLayout>
-
-    );
+    return <AppRoutes />;
 
 }
 

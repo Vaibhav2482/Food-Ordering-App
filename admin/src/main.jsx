@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-
+import { Toaster } from "react-hot-toast";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import "@fontsource/plus-jakarta-sans";
 import App from "./App";
@@ -13,6 +13,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <ThemeProvider theme={theme}>
 
             <CssBaseline />
+
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    duration: 2500
+                }}
+            />
 
             <App />
 

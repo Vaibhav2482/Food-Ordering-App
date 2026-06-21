@@ -10,7 +10,7 @@ function MainLayout({ children }) {
             sx={{
                 display: "flex",
                 minHeight: "100vh",
-                backgroundColor: "#0F0F0F"
+                bgcolor: "#F5F6FA"
             }}
         >
 
@@ -20,7 +20,8 @@ function MainLayout({ children }) {
                 sx={{
                     flex: 1,
                     display: "flex",
-                    flexDirection: "column"
+                    flexDirection: "column",
+                    bgcolor: "#F5F6FA"
                 }}
             >
 
@@ -29,7 +30,8 @@ function MainLayout({ children }) {
                 <Box
                     sx={{
                         flex: 1,
-                        p: 3
+                        p: 3,
+                        bgcolor: "#F5F6FA"
                     }}
                 >
                     {children}

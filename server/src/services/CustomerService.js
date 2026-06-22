@@ -125,3 +125,39 @@ export const updateCustomer = async (customerId, customer) => {
     };
 
 };
+
+export const getAllCustomers = async () => {
+
+    const customers =
+        await CustomerRepository.getAllCustomers();
+
+    return {
+        success: true,
+        message: "Customers fetched successfully.",
+        data: customers
+    };
+
+};
+
+export const deleteCustomer = async (customerId) => {
+
+    const existingCustomer =
+        await CustomerRepository.getCustomerById(customerId);
+
+    if (!existingCustomer) {
+
+        return {
+            success: false,
+            message: "Customer not found."
+        };
+
+    }
+
+    await CustomerRepository.deleteCustomer(customerId);
+
+    return {
+        success: true,
+        message: "Customer deleted successfully."
+    };
+
+};

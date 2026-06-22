@@ -1,12 +1,21 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+    BrowserRouter,
+    Routes,
+    Route,
+    Navigate
+} from "react-router-dom";
 
+import ProtectedRoute from "../components/auth/ProtectedRoute";
 import MainLayout from "../components/layout/MainLayout";
-import Category from "../pages/category/Category";
+
+import Login from "../pages/login/Login";
+
 import Dashboard from "../components/dashboard/Dashboard";
+import Category from "../pages/category/Category";
 import Menu from "../pages/menu/Menu";
 import Orders from "../pages/orders/Orders";
 import Customers from "../pages/customers/Customers";
-
+import Reports from "../pages/reports/Reports";
 
 function AppRoutes() {
 
@@ -14,43 +23,77 @@ function AppRoutes() {
 
         <BrowserRouter>
 
-            <MainLayout>
+            <Routes>
 
-                <Routes>
+                <Route
+                    path="/login"
+                    element={<Login />}
+                />
+
+                <Route
+                    path="/"
+                    element={
+                        <ProtectedRoute>
+
+                            <MainLayout />
+
+                        </ProtectedRoute>
+                    }
+                >
 
                     <Route
-                        path="/"
-                        element={<Navigate to="/dashboard" replace />}
+                        index
+                        element={
+                            <Navigate
+                                to="/dashboard"
+                                replace
+                            />
+                        }
                     />
 
                     <Route
-                        path="/dashboard"
+                        path="dashboard"
                         element={<Dashboard />}
                     />
 
                     <Route
-                        path="/menu"
-                        element={<Menu />}
-                    />
-
-                    <Route
-                        path="/category"
+                        path="category"
                         element={<Category />}
                     />
 
                     <Route
-    path="/orders"
-    element={<Orders />}
-/>
+                        path="menu"
+                        element={<Menu />}
+                    />
 
-<Route
-    path="/customers"
-    element={<Customers />}
-/>
+                    <Route
+                        path="orders"
+                        element={<Orders />}
+                    />
 
-                </Routes>
+                    <Route
+                        path="customers"
+                        element={<Customers />}
+                    />
 
-            </MainLayout>
+                    <Route
+                        path="reports"
+                        element={<Reports />}
+                    />
+
+                </Route>
+
+                <Route
+                    path="*"
+                    element={
+                        <Navigate
+                            to="/login"
+                            replace
+                        />
+                    }
+                />
+
+            </Routes>
 
         </BrowserRouter>
 

@@ -13,6 +13,11 @@ import CategoryRoundedIcon from "@mui/icons-material/CategoryRounded";
 import RestaurantMenuRoundedIcon from "@mui/icons-material/RestaurantMenuRounded";
 import PeopleRoundedIcon from "@mui/icons-material/PeopleRounded";
 import { NavLink } from "react-router-dom";
+import AssessmentRoundedIcon from "@mui/icons-material/AssessmentRounded";
+
+
+
+
 
 const menuItems = [
 
@@ -38,6 +43,12 @@ const menuItems = [
     text: "Customers",
     path: "/customers",
     icon: <PeopleRoundedIcon />
+},
+
+{
+    text: "Reports",
+    path: "/reports",
+    icon: <AssessmentRoundedIcon />
 }
 
 ];

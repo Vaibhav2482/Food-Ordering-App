@@ -3,6 +3,7 @@ import {
     Avatar,
     Badge,
     Box,
+    Button,
     IconButton,
     InputBase,
     Paper,
@@ -10,11 +11,60 @@ import {
     Typography
 } from "@mui/material";
 
+import {
+    useLocation,
+    useNavigate
+} from "react-router-dom";
+
 import NotificationsNoneRoundedIcon from "@mui/icons-material/NotificationsNoneRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-import RestaurantRoundedIcon from "@mui/icons-material/RestaurantRounded";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 
 function Header() {
+
+    const navigate = useNavigate();
+
+    const location = useLocation();
+
+    const admin = JSON.parse(
+
+        localStorage.getItem("admin")
+
+    );
+
+    const pageTitle = {
+
+        "/dashboard": "Dashboard",
+
+        "/category": "Categories",
+
+        "/menu": "Menu",
+
+        "/orders": "Orders",
+
+        "/customers": "Customers",
+
+        "/reports": "Reports"
+
+    };
+
+const handleLogout = () => {
+
+    localStorage.clear();
+
+    navigate(
+
+        "/login",
+
+        {
+
+            replace: true
+
+        }
+
+    );
+
+};
 
     return (
 
@@ -38,21 +88,28 @@ function Header() {
 
                     <Typography
                         variant="h5"
-                        sx={{
-                            fontWeight: 700,
-                            color: "#1F2937"
-                        }}
+                        fontWeight={700}
                     >
-                        Dashboard
+
+                        {
+
+                            pageTitle[location.pathname]
+
+                            ||
+
+                            "Dashboard"
+
+                        }
+
                     </Typography>
 
                     <Typography
                         variant="body2"
-                        sx={{
-                            color: "#6B7280"
-                        }}
+                        color="text.secondary"
                     >
+
                         Welcome to ChaiChakhna Admin Panel
+
                     </Typography>
 
                 </Box>
@@ -72,7 +129,7 @@ function Header() {
                             alignItems: "center",
                             px: 2,
                             py: 0.5,
-                            width: 320,
+                            width: 300,
                             border: "1px solid #E5E7EB",
                             borderRadius: 3
                         }}
@@ -114,7 +171,17 @@ function Header() {
                             height: 42
                         }}
                     >
-                        A
+
+                        {
+
+                            admin?.FullName?.charAt(0)
+
+                            ||
+
+                            "A"
+
+                        }
+
                     </Avatar>
 
                     <Box>
@@ -122,24 +189,48 @@ function Header() {
                         <Typography
                             fontWeight={700}
                         >
-                            Admin
+
+                            {
+
+                                admin?.FullName
+
+                                ||
+
+                                "Administrator"
+
+                            }
+
                         </Typography>
 
                         <Typography
                             variant="body2"
                             color="text.secondary"
                         >
-                            Administrator
+
+                            {
+
+                                admin?.Email
+
+                                ||
+
+                                ""
+
+                            }
+
                         </Typography>
 
                     </Box>
 
-                    <RestaurantRoundedIcon
-                        sx={{
-                            color: "#0F766E",
-                            fontSize: 34
-                        }}
-                    />
+                    <Button
+                        variant="outlined"
+                        color="error"
+                        startIcon={<LogoutRoundedIcon />}
+                        onClick={handleLogout}
+                    >
+
+                        Logout
+
+                    </Button>
 
                 </Box>
 

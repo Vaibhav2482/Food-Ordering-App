@@ -11,6 +11,7 @@ import {
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import CategoryRoundedIcon from "@mui/icons-material/CategoryRounded";
 import RestaurantMenuRoundedIcon from "@mui/icons-material/RestaurantMenuRounded";
+import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
 import PeopleRoundedIcon from "@mui/icons-material/PeopleRounded";
 import { NavLink } from "react-router-dom";
 import AssessmentRoundedIcon from "@mui/icons-material/AssessmentRounded";
@@ -40,10 +41,16 @@ const menuItems = [
     },
 
     {
-    text: "Customers",
-    path: "/customers",
-    icon: <PeopleRoundedIcon />
-},
+        text: "Orders",
+        path: "/orders",
+        icon: <ShoppingCartRoundedIcon />
+    },
+
+    {
+        text: "Customers",
+        path: "/customers",
+        icon: <PeopleRoundedIcon />
+    },
 
 {
     text: "Reports",
@@ -82,7 +89,7 @@ function Sidebar() {
                         color: "#F58220"
                     }}
                 >
-                    ChaiChakhna
+                    Chai Chakhna Company
                 </Typography>
 
                 <Typography

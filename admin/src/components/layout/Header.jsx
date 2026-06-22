@@ -108,7 +108,7 @@ const handleLogout = () => {
                         color="text.secondary"
                     >
 
-                        Welcome to ChaiChakhna Admin Panel
+                        Welcome to ChaiChakhnaCompany Admin Panel
 
                     </Typography>
 

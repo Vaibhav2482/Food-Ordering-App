@@ -75,3 +75,28 @@ export const updateCustomer = async (customer) => {
     return result.recordset[0];
 
 };
+
+export const getAllCustomers = async () => {
+
+    const pool = await sql.connect();
+
+    const result = await pool
+        .request()
+        .execute("sp_GetAllCustomers");
+
+    return result.recordset;
+
+};
+
+export const deleteCustomer = async (customerId) => {
+
+    const pool = await sql.connect();
+
+    const result = await pool
+        .request()
+        .input("CustomerId", sql.Int, customerId)
+        .execute("sp_DeleteCustomer");
+
+    return result.recordset[0];
+
+};

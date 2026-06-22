@@ -1,87 +1,313 @@
 import {
-    Card,
-    CardContent,
-    Typography
+    Paper,
+    Typography,
+    Box,
+    Grid,
+    Chip,
+    Skeleton
 } from "@mui/material";
 
 import {
-    ResponsiveContainer,
     PieChart,
     Pie,
     Cell,
     Tooltip,
-    Legend
+    ResponsiveContainer
 } from "recharts";
 
-const data = [
-    { name: "Pending", value: 18 },
-    { name: "Preparing", value: 12 },
-    { name: "Delivered", value: 96 },
-    { name: "Cancelled", value: 5 }
-];
+const COLORS = {
 
-const COLORS = [
-    "#F59E0B",
-    "#3B82F6",
-    "#22C55E",
-    "#EF4444"
-];
+    Pending: "#F59E0B",
 
-function OrderStatusChart() {
+    Accepted: "#3B82F6",
+
+    Preparing: "#8B5CF6",
+
+    Ready: "#14B8A6",
+
+    "Out For Delivery": "#F97316",
+
+    Delivered: "#22C55E",
+
+    Cancelled: "#EF4444"
+
+};
+
+function OrderStatusChart({
+
+    summary,
+    loading
+
+}) {
+
+    const data = [
+
+        {
+            name: "Pending",
+            value: summary?.PendingOrders ?? 0
+        },
+
+        {
+            name: "Accepted",
+            value: summary?.AcceptedOrders ?? 0
+        },
+
+        {
+            name: "Preparing",
+            value: summary?.PreparingOrders ?? 0
+        },
+
+        {
+            name: "Ready",
+            value: summary?.ReadyOrders ?? 0
+        },
+
+        {
+            name: "Out For Delivery",
+            value: summary?.OutForDeliveryOrders ?? 0
+        },
+
+        {
+            name: "Delivered",
+            value: summary?.DeliveredOrders ?? 0
+        },
+
+        {
+            name: "Cancelled",
+            value: summary?.CancelledOrders ?? 0
+        }
+
+    ];
 
     return (
 
-        <Card>
+        <Paper
 
-            <CardContent>
+            elevation={0}
 
-                <Typography
-                    variant="h6"
-                    fontWeight={700}
-                    mb={3}
-                >
-                    Order Status
-                </Typography>
+            sx={{
 
-                <ResponsiveContainer
-                    width="100%"
-                    height={320}
-                >
+                borderRadius: 4,
 
-                    <PieChart>
+                border: "1px solid #ECECEC",
 
-                        <Pie
-                            data={data}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            label
+                p: 3,
+
+                height: 430,
+
+                display: "flex",
+
+                flexDirection: "column"
+
+            }}
+
+        >
+
+            <Typography
+
+                variant="h6"
+
+                fontWeight={700}
+
+                mb={0.5}
+
+            >
+
+                Order Status
+
+            </Typography>
+
+            <Typography
+
+                color="text.secondary"
+
+                fontSize={13}
+
+                mb={2}
+
+            >
+
+                Current order distribution
+
+            </Typography>
+
+            {
+
+                loading ?
+
+                (
+
+                    <Skeleton
+
+                        variant="circular"
+
+                        width={180}
+
+                        height={180}
+
+                        sx={{
+
+                            mx: "auto",
+
+                            my: 2
+
+                        }}
+
+                    />
+
+                )
+
+                :
+
+                (
+
+                    <Box
+
+                        sx={{
+
+                            height: 190
+
+                        }}
+
+                    >
+
+                        <ResponsiveContainer>
+
+                            <PieChart>
+
+                                <Pie
+
+                                    data={data}
+
+                                    innerRadius={55}
+
+                                    outerRadius={85}
+
+                                    paddingAngle={3}
+
+                                    dataKey="value"
+
+                                >
+
+                                    {
+
+                                        data.map((item) => (
+
+                                            <Cell
+
+                                                key={item.name}
+
+                                                fill={COLORS[item.name]}
+
+                                            />
+
+                                        ))
+
+                                    }
+
+                                </Pie>
+
+                                <Tooltip />
+
+                            </PieChart>
+
+                        </ResponsiveContainer>
+
+                    </Box>
+
+                )
+
+            }
+
+            <Grid
+
+                container
+
+                spacing={1}
+
+                mt={2}
+
+            >
+
+                {
+
+                    data.map((item) => (
+
+                        <Grid
+
+                            item
+
+                            xs={6}
+
+                            key={item.name}
+
                         >
 
-                            {data.map((entry, index) => (
+                            <Box
 
-                                <Cell
-                                    key={index}
-                                    fill={COLORS[index]}
+                                display="flex"
+
+                                justifyContent="space-between"
+
+                                alignItems="center"
+
+                                sx={{
+
+                                    bgcolor: "#FAFAFA",
+
+                                    borderRadius: 2,
+
+                                    px: 1.5,
+
+                                    py: 1
+
+                                }}
+
+                            >
+
+                                <Typography
+
+                                    fontSize={12}
+
+                                    fontWeight={600}
+
+                                >
+
+                                    {item.name}
+
+                                </Typography>
+
+                                <Chip
+
+                                    label={item.value}
+
+                                    size="small"
+
+                                    sx={{
+
+                                        bgcolor: COLORS[item.name],
+
+                                        color: "#fff",
+
+                                        fontWeight: 700,
+
+                                        minWidth: 36
+
+                                    }}
+
                                 />
 
-                            ))}
+                            </Box>
 
-                        </Pie>
+                        </Grid>
 
-                        <Tooltip />
+                    ))
 
-                        <Legend />
+                }
 
-                    </PieChart>
+            </Grid>
 
-                </ResponsiveContainer>
-
-            </CardContent>
-
-        </Card>
+        </Paper>
 
     );
 

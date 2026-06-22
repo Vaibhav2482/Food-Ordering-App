@@ -1,8 +1,46 @@
 import {
     Box,
     Typography,
-    Divider
+    Divider,
+    List,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText
 } from "@mui/material";
+
+import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
+import CategoryRoundedIcon from "@mui/icons-material/CategoryRounded";
+import RestaurantMenuRoundedIcon from "@mui/icons-material/RestaurantMenuRounded";
+import PeopleRoundedIcon from "@mui/icons-material/PeopleRounded";
+import { NavLink } from "react-router-dom";
+
+const menuItems = [
+
+    {
+        text: "Dashboard",
+        path: "/dashboard",
+        icon: <DashboardRoundedIcon />
+    },
+
+    {
+        text: "Categories",
+        path: "/category",
+        icon: <CategoryRoundedIcon />
+    },
+
+    {
+        text: "Menu",
+        path: "/menu",
+        icon: <RestaurantMenuRoundedIcon />
+    },
+
+    {
+    text: "Customers",
+    path: "/customers",
+    icon: <PeopleRoundedIcon />
+}
+
+];
 
 function Sidebar() {
 
@@ -68,6 +106,67 @@ function Sidebar() {
                 >
                     Main Menu
                 </Typography>
+
+                <List>
+
+                    {
+
+                        menuItems.map((item) => (
+
+                            <ListItemButton
+
+                                key={item.text}
+
+                                component={NavLink}
+
+                                to={item.path}
+
+                                sx={{
+
+                                    borderRadius: 2,
+
+                                    mb: 1,
+
+                                    color: "#374151",
+
+                                    "&.active": {
+
+                                        bgcolor: "#F58220",
+
+                                        color: "#FFFFFF",
+
+                                        "& .MuiListItemIcon-root": {
+
+                                            color: "#FFFFFF"
+
+                                        }
+
+                                    }
+
+                                }}
+
+                            >
+
+                                <ListItemIcon
+                                    sx={{
+                                        minWidth: 40,
+                                        color: "inherit"
+                                    }}
+                                >
+                                    {item.icon}
+                                </ListItemIcon>
+
+                                <ListItemText
+                                    primary={item.text}
+                                />
+
+                            </ListItemButton>
+
+                        ))
+
+                    }
+
+                </List>
 
             </Box>
 

@@ -9,3 +9,43 @@ export const getAllCategories = async () => {
     return response.data;
 
 };
+
+export const createCategory = async (category) => {
+
+    const response = await axios.post(
+
+        API_URL,
+
+        category
+
+    );
+
+    return response.data;
+
+};
+
+export const updateCategory = async (categoryId, category) => {
+
+    const response = await axios.put(
+
+        `${API_URL}/${categoryId}`,
+
+        category
+
+    );
+
+    return response.data;
+
+};
+
+export const deleteCategory = async (categoryId) => {
+
+    const response = await axios.delete(
+
+        `${API_URL}/${categoryId}`
+
+    );
+
+    return response.data;
+
+};

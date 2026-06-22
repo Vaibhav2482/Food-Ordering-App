@@ -1,114 +1,345 @@
 import {
-    Card,
-    CardContent,
-    Typography,
+    Avatar,
+    Box,
+    Chip,
+    Paper,
     Table,
     TableBody,
     TableCell,
+    TableContainer,
     TableHead,
     TableRow,
-    Chip
+    Typography,
+    Skeleton
 } from "@mui/material";
 
-const rows = [
-    {
-        id: 1001,
-        customer: "Rahul Sharma",
-        amount: "₹320",
-        status: "Pending"
-    },
-    {
-        id: 1002,
-        customer: "Amit Patil",
-        amount: "₹540",
-        status: "Preparing"
-    },
-    {
-        id: 1003,
-        customer: "Sneha Joshi",
-        amount: "₹210",
-        status: "Delivered"
-    }
-];
+import ShoppingBagRoundedIcon from "@mui/icons-material/ShoppingBagRounded";
 
-function RecentOrders() {
+function getStatusColor(status) {
+
+    switch (status) {
+
+        case "Pending":
+            return "warning";
+
+        case "Accepted":
+            return "info";
+
+        case "Preparing":
+            return "secondary";
+
+        case "Ready":
+            return "primary";
+
+        case "Out For Delivery":
+            return "primary";
+
+        case "Delivered":
+            return "success";
+
+        case "Cancelled":
+            return "error";
+
+        default:
+            return "default";
+
+    }
+
+}
+
+function formatDate(date) {
+
+    return new Date(date).toLocaleDateString(
+
+        "en-IN",
+
+        {
+
+            day: "2-digit",
+
+            month: "short",
+
+            year: "numeric"
+
+        }
+
+    );
+
+}
+
+function RecentOrders({
+
+    orders,
+
+    loading
+
+}) {
 
     return (
 
-        <Card>
+        <Paper
 
-            <CardContent>
+            elevation={0}
 
-                <Typography
-                    variant="h6"
-                    fontWeight={700}
-                    mb={2}
-                >
-                    Recent Orders
-                </Typography>
+            sx={{
 
-                <Table>
+                borderRadius: 4,
 
-                    <TableHead>
+                border: "1px solid #ECECEC",
 
-                        <TableRow>
+                p: 3,
 
-                            <TableCell>Order</TableCell>
+                height: 450,
 
-                            <TableCell>Customer</TableCell>
+                display: "flex",
 
-                            <TableCell>Amount</TableCell>
+                flexDirection: "column"
 
-                            <TableCell>Status</TableCell>
+            }}
 
-                        </TableRow>
+        >
 
-                    </TableHead>
+            <Box
 
-                    <TableBody>
+                display="flex"
 
-                        {rows.map((row) => (
+                justifyContent="space-between"
 
-                            <TableRow key={row.id}>
+                alignItems="center"
 
-                                <TableCell>
-                                    #{row.id}
-                                </TableCell>
+                mb={3}
 
-                                <TableCell>
-                                    {row.customer}
-                                </TableCell>
+            >
 
-                                <TableCell>
-                                    {row.amount}
-                                </TableCell>
+                <Box>
 
-                                <TableCell>
+                    <Typography
 
-                                    <Chip
-                                        label={row.status}
-                                        color={
-                                            row.status === "Delivered"
-                                                ? "success"
-                                                : row.status === "Pending"
-                                                ? "warning"
-                                                : "info"
-                                        }
-                                    />
+                        variant="h6"
 
-                                </TableCell>
+                        fontWeight={700}
 
-                            </TableRow>
+                    >
 
-                        ))}
+                        Recent Orders
 
-                    </TableBody>
+                    </Typography>
 
-                </Table>
+                    <Typography
 
-            </CardContent>
+                        fontSize={13}
 
-        </Card>
+                        color="text.secondary"
+
+                    >
+
+                        Latest customer orders
+
+                    </Typography>
+
+                </Box>
+
+            </Box>
+
+            {
+
+                loading ?
+
+                (
+
+                    <Skeleton
+
+                        variant="rounded"
+
+                        height={320}
+
+                    />
+
+                )
+
+                :
+
+                (
+
+                    <TableContainer>
+
+                        <Table>
+
+                            <TableHead>
+
+                                <TableRow>
+
+                                    <TableCell>
+
+                                        Order
+
+                                    </TableCell>
+
+                                    <TableCell>
+
+                                        Customer
+
+                                    </TableCell>
+
+                                    <TableCell>
+
+                                        Amount
+
+                                    </TableCell>
+
+                                    <TableCell>
+
+                                        Status
+
+                                    </TableCell>
+
+                                    <TableCell>
+
+                                        Date
+
+                                    </TableCell>
+
+                                </TableRow>
+
+                            </TableHead>
+
+                            <TableBody>
+
+                                {
+
+                                    orders.map((order) => (
+
+                                        <TableRow
+
+                                            hover
+
+                                            key={order.OrderId}
+
+                                            sx={{
+
+                                                "& td": {
+
+                                                    py: 2
+
+                                                }
+
+                                            }}
+
+                                        >
+
+                                            <TableCell>
+
+                                                <Box
+
+                                                    display="flex"
+
+                                                    alignItems="center"
+
+                                                    gap={2}
+
+                                                >
+
+                                                    <Avatar
+
+                                                        sx={{
+
+                                                            bgcolor: "#FFF4EC",
+
+                                                            color: "#F58220",
+
+                                                            width: 42,
+
+                                                            height: 42
+
+                                                        }}
+
+                                                    >
+
+                                                        <ShoppingBagRoundedIcon />
+
+                                                    </Avatar>
+
+                                                    <Typography
+
+                                                        fontWeight={700}
+
+                                                    >
+
+                                                        #{order.OrderId}
+
+                                                    </Typography>
+
+                                                </Box>
+
+                                            </TableCell>
+
+                                            <TableCell>
+
+                                                <Typography
+
+                                                    fontWeight={600}
+
+                                                >
+
+                                                    {order.CustomerName}
+
+                                                </Typography>
+
+                                            </TableCell>
+
+                                            <TableCell>
+
+                                                <Typography
+
+                                                    fontWeight={700}
+
+                                                    color="#22C55E"
+
+                                                >
+
+                                                    ₹ {order.TotalAmount}
+
+                                                </Typography>
+
+                                            </TableCell>
+
+                                            <TableCell>
+
+                                                <Chip
+
+                                                    size="small"
+
+                                                    label={order.OrderStatus}
+
+                                                    color={getStatusColor(order.OrderStatus)}
+
+                                                />
+
+                                            </TableCell>
+
+                                            <TableCell>
+
+                                                {formatDate(order.OrderDate)}
+
+                                            </TableCell>
+
+                                        </TableRow>
+
+                                    ))
+
+                                }
+
+                            </TableBody>
+
+                        </Table>
+
+                    </TableContainer>
+
+                )
+
+            }
+
+        </Paper>
 
     );
 

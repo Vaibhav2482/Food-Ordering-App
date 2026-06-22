@@ -1,100 +1,230 @@
 import {
-    Card,
-    CardContent,
-    Typography
+    Paper,
+    Typography,
+    Box,
+    Skeleton
 } from "@mui/material";
 
 import {
     ResponsiveContainer,
-    AreaChart,
-    Area,
+    LineChart,
+    Line,
     CartesianGrid,
     XAxis,
     YAxis,
     Tooltip
 } from "recharts";
 
-const data = [
-    { day: "Mon", sales: 3200 },
-    { day: "Tue", sales: 4500 },
-    { day: "Wed", sales: 3800 },
-    { day: "Thu", sales: 5200 },
-    { day: "Fri", sales: 6100 },
-    { day: "Sat", sales: 8300 },
-    { day: "Sun", sales: 7200 }
-];
+function formatDate(date) {
 
-function SalesChart() {
+    return new Date(date).toLocaleDateString(
+
+        "en-IN",
+
+        {
+
+            day: "2-digit",
+
+            month: "short"
+
+        }
+
+    );
+
+}
+
+function SalesChart({
+
+    salesData,
+    loading
+
+}) {
 
     return (
 
-        <Card>
+        <Paper
 
-            <CardContent>
+            elevation={0}
 
-                <Typography
-                    variant="h6"
-                    fontWeight={700}
-                    mb={3}
-                >
-                    Sales Overview
-                </Typography>
+            sx={{
 
-                <ResponsiveContainer
-                    width="100%"
-                    height={320}
-                >
+                borderRadius: 4,
 
-                    <AreaChart data={data}>
+                border: "1px solid #ECECEC",
 
-                        <defs>
+                p: 3,
 
-                            <linearGradient
-                                id="sales"
-                                x1="0"
-                                y1="0"
-                                x2="0"
-                                y2="1"
-                            >
-                                <stop
-                                    offset="5%"
-                                    stopColor="#F58220"
-                                    stopOpacity={0.8}
-                                />
+                height: 430,
 
-                                <stop
-                                    offset="95%"
-                                    stopColor="#F58220"
-                                    stopOpacity={0.05}
-                                />
+                display: "flex",
 
-                            </linearGradient>
+                flexDirection: "column"
 
-                        </defs>
+            }}
 
-                        <CartesianGrid strokeDasharray="3 3" />
+        >
 
-                        <XAxis dataKey="day" />
+            <Box
 
-                        <YAxis />
+                display="flex"
 
-                        <Tooltip />
+                justifyContent="space-between"
 
-                        <Area
-                            type="monotone"
-                            dataKey="sales"
-                            stroke="#F58220"
-                            fillOpacity={1}
-                            fill="url(#sales)"
-                        />
+                alignItems="center"
 
-                    </AreaChart>
+                mb={3}
 
-                </ResponsiveContainer>
+            >
 
-            </CardContent>
+                <Box>
 
-        </Card>
+                    <Typography
+
+                        variant="h6"
+
+                        fontWeight={700}
+
+                    >
+
+                        Sales Analytics
+
+                    </Typography>
+
+                    <Typography
+
+                        color="text.secondary"
+
+                        fontSize={13}
+
+                    >
+
+                        Revenue generated during the last 7 days
+
+                    </Typography>
+
+                </Box>
+
+            </Box>
+
+            {
+
+                loading ?
+
+                (
+
+                    <Skeleton
+
+                        variant="rounded"
+
+                        height={320}
+
+                    />
+
+                )
+
+                :
+
+                (
+
+                    <ResponsiveContainer
+
+                        width="100%"
+
+                        height="100%"
+
+                    >
+
+                        <LineChart
+
+                            data={salesData}
+
+                            margin={{
+
+                                top: 10,
+
+                                right: 10,
+
+                                left: 0,
+
+                                bottom: 0
+
+                            }}
+
+                        >
+
+                            <CartesianGrid
+
+                                stroke="#F3F4F6"
+
+                                strokeDasharray="3 3"
+
+                            />
+
+                            <XAxis
+
+                                dataKey="SalesDate"
+
+                                tickFormatter={formatDate}
+
+                                tickMargin={10}
+
+                            />
+
+                            <YAxis
+
+                                tickFormatter={(value) => `₹${value}`}
+
+                            />
+
+                            <Tooltip
+
+                                labelFormatter={formatDate}
+
+                                formatter={(value) => [
+
+                                    `₹ ${value}`,
+
+                                    "Revenue"
+
+                                ]}
+
+                            />
+
+                            <Line
+
+                                type="monotone"
+
+                                dataKey="TotalRevenue"
+
+                                stroke="#F58220"
+
+                                strokeWidth={4}
+
+                                dot={{
+
+                                    r: 5,
+
+                                    strokeWidth: 2
+
+                                }}
+
+                                activeDot={{
+
+                                    r: 8
+
+                                }}
+
+                            />
+
+                        </LineChart>
+
+                    </ResponsiveContainer>
+
+                )
+
+            }
+
+        </Paper>
 
     );
 

@@ -72,3 +72,42 @@ export const updateCustomer = asyncHandler(async (req, res) => {
     );
   
 });
+
+
+export const getAllCustomers = asyncHandler(async (req, res) => {
+
+    const result =
+        await CustomerService.getAllCustomers();
+
+    return successResponse(
+        res,
+        result.data,
+        result.message
+    );
+
+});
+
+export const deleteCustomer = asyncHandler(async (req, res) => {
+
+    const { id } = req.params;
+
+    const result =
+        await CustomerService.deleteCustomer(id);
+
+    if (!result.success) {
+
+        return errorResponse(
+            res,
+            result.message,
+            404
+        );
+
+    }
+
+    return successResponse(
+        res,
+        null,
+        result.message
+    );
+
+});

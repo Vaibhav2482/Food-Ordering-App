@@ -1,5 +1,7 @@
 import * as CheckoutRepository from "../repositories/CheckoutRepository.js";
 
+const VALID_DELIVERY_TYPES = ["Delivery", "Dine In"];
+
 export const checkout = async (checkoutData) => {
 
     const {
@@ -9,6 +11,8 @@ export const checkout = async (checkoutData) => {
         notes
     } = checkoutData;
 
+    const deliveryType = checkoutData.deliveryType || "Delivery";
+
     if (!customerId) {
         return {
             success: false,
@@ -16,10 +20,17 @@ export const checkout = async (checkoutData) => {
         };
     }
 
-    if (!addressId) {
+    if (!VALID_DELIVERY_TYPES.includes(deliveryType)) {
         return {
             success: false,
-            message: "Address Id is required."
+            message: "Order type must be either Delivery or Dine In."
+        };
+    }
+
+    if (deliveryType === "Delivery" && !addressId) {
+        return {
+            success: false,
+            message: "Address Id is required for delivery orders."
         };
     }
 
@@ -32,7 +43,8 @@ export const checkout = async (checkoutData) => {
 
     const order = await CheckoutRepository.checkout(
         customerId,
-        addressId,
+        deliveryType === "Delivery" ? addressId : null,
+        deliveryType,
         paymentMethod,
         notes
     );

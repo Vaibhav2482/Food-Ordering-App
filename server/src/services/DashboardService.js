@@ -1,8 +1,8 @@
 import * as DashboardRepository from "../repositories/DashboardRepository.js";
 
-export const getDashboardSummary = async () => {
+export const getDashboardSummary = async (branchId) => {
 
-    const dashboard = await DashboardRepository.getDashboardSummary();
+    const dashboard = await DashboardRepository.getDashboardSummary(branchId);
 
     return {
         success: true,
@@ -12,9 +12,9 @@ export const getDashboardSummary = async () => {
 
 };
 
-export const getRecentOrders = async () => {
+export const getRecentOrders = async (branchId) => {
 
-    const recentOrders = await DashboardRepository.getRecentOrders();
+    const recentOrders = await DashboardRepository.getRecentOrders(branchId);
 
     return {
         success: true,
@@ -24,9 +24,9 @@ export const getRecentOrders = async () => {
 
 };
 
-export const getTopSellingItems = async () => {
+export const getTopSellingItems = async (branchId) => {
 
-    const topSellingItems = await DashboardRepository.getTopSellingItems();
+    const topSellingItems = await DashboardRepository.getTopSellingItems(branchId);
 
     return {
         success: true,
@@ -36,9 +36,9 @@ export const getTopSellingItems = async () => {
 
 };
 
-export const getSalesLast7Days = async () => {
+export const getSalesLast7Days = async (branchId) => {
 
-    const sales = await DashboardRepository.getSalesLast7Days();
+    const sales = await DashboardRepository.getSalesLast7Days(branchId);
 
     return {
         success: true,

@@ -9,6 +9,8 @@ export const createPayment = async (payment) => {
         .input("OrderId", sql.Int, payment.orderId)
         .input("PaymentMethod", sql.NVarChar(50), payment.paymentMethod)
         .input("Amount", sql.Decimal(10, 2), payment.amount)
+        .input("PaymentStatus", sql.NVarChar(20), payment.paymentStatus ?? "Pending")
+        .input("TransactionId", sql.NVarChar(150), payment.transactionId ?? null)
         .execute("sp_CreatePayment");
 
     return result.recordset[0];

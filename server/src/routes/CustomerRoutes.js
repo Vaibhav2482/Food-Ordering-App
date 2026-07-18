@@ -5,8 +5,11 @@ import {
     getAllCustomers,
     getCustomerById,
     updateCustomer,
-    deleteCustomer
+    deleteCustomer,
+    findOrCreateWalkInCustomer,
+    getOrCreateGuestCustomer
 } from "../controllers/CustomerController.js";
+import { authenticate, authorize } from "../middleware/Auth.js";
 
 const router = express.Router();
 
@@ -14,12 +17,16 @@ router.post("/register", registerCustomer);
 
 router.post("/login", customerLogin);
 
-router.get("/", getAllCustomers);
+router.post("/walk-in", authenticate, authorize("admin"), findOrCreateWalkInCustomer);
 
-router.get("/:id", getCustomerById);
+router.post("/guest", authenticate, authorize("admin"), getOrCreateGuestCustomer);
 
-router.put("/:id", updateCustomer);
+router.get("/", authenticate, authorize("admin"), getAllCustomers);
 
-router.delete("/:id", deleteCustomer);
+router.get("/:id", authenticate, getCustomerById);
+
+router.put("/:id", authenticate, updateCustomer);
+
+router.delete("/:id", authenticate, authorize("admin"), deleteCustomer);
 
 export default router;

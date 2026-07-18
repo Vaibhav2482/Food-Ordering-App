@@ -17,6 +17,9 @@ import CheckoutRoutes from "./routes/CheckoutRoutes.js";
 import PaymentRoutes from "./routes/PaymentRoutes.js";
 import DashboardRoutes from "./routes/DashboardRoutes.js";
 import ReportRoutes from "./routes/ReportRoutes.js";
+import BranchRoutes from "./routes/BranchRoutes.js";
+import TableRoutes from "./routes/TableRoutes.js";
+import AdminRoutes from "./routes/AdminRoutes.js";
 import { swaggerDocs } from "./config/swagger.js";
 
 
@@ -53,6 +56,9 @@ app.use("/api/v1/checkout", CheckoutRoutes);
 app.use("/api/v1/payments", PaymentRoutes);
 app.use("/api/v1/dashboard", DashboardRoutes);
 app.use("/api/v1/reports", ReportRoutes);
+app.use("/api/v1/branches", BranchRoutes);
+app.use("/api/v1/tables", TableRoutes);
+app.use("/api/v1/admins", AdminRoutes);
 
 
 swaggerDocs(app);

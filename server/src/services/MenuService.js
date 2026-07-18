@@ -1,8 +1,15 @@
 import * as MenuRepository from "../repositories/MenuRepository.js";
 
-export const getAllMenuItems = async () => {
+export const getAllMenuItems = async (branchId) => {
 
-    const menuItems = await MenuRepository.getAllMenuItems();
+    if (!branchId) {
+        return {
+            success: false,
+            message: "Branch Id is required."
+        };
+    }
+
+    const menuItems = await MenuRepository.getAllMenuItems(branchId);
 
     return {
         success: true,
@@ -36,6 +43,13 @@ export const createMenuItem = async (menuItem) => {
     menuItem.itemName = menuItem.itemName?.trim();
     menuItem.description = menuItem.description?.trim();
 
+    if (!menuItem.branchId) {
+        return {
+            success: false,
+            message: "Branch is required."
+        };
+    }
+
     if (!menuItem.categoryId) {
         return {
             success: false,
@@ -58,13 +72,14 @@ export const createMenuItem = async (menuItem) => {
     }
 
     const duplicate = await MenuRepository.checkMenuItemExists(
-        menuItem.itemName
+        menuItem.itemName,
+        menuItem.branchId
     );
 
     if (duplicate.length > 0) {
         return {
             success: false,
-            message: "Menu item already exists."
+            message: "Menu item already exists for this branch."
         };
     }
 
@@ -74,6 +89,10 @@ export const createMenuItem = async (menuItem) => {
 
     if (menuItem.isPopular === undefined) {
         menuItem.isPopular = false;
+    }
+
+    if (menuItem.isActive === undefined) {
+        menuItem.isActive = true;
     }
 
     const result = await MenuRepository.createMenuItem(menuItem);
@@ -89,14 +108,41 @@ export const updateMenuItem = async (menuItemId, menuItem) => {
 
     const existingMenuItem = await MenuRepository.getMenuItemById(menuItemId);
 
-    if (!existingMenuItem) {
+    if (existingMenuItem.length === 0) {
         return {
             success: false,
             message: "Menu item not found."
         };
     }
 
-    const duplicateMenuItem = await MenuRepository.getMenuItemByName(menuItem.itemName);
+    menuItem.itemName = menuItem.itemName?.trim();
+    menuItem.description = menuItem.description?.trim();
+
+    if (!menuItem.categoryId) {
+        return {
+            success: false,
+            message: "Category is required."
+        };
+    }
+
+    if (!menuItem.itemName) {
+        return {
+            success: false,
+            message: "Item Name is required."
+        };
+    }
+
+    if (!menuItem.price || menuItem.price <= 0) {
+        return {
+            success: false,
+            message: "Price must be greater than 0."
+        };
+    }
+
+    // A menu item's branch is fixed at creation time; duplicate-name checks stay scoped to it.
+    const branchId = existingMenuItem[0].BranchId;
+
+    const duplicateMenuItem = await MenuRepository.getMenuItemByName(menuItem.itemName, branchId);
 
     if (
         duplicateMenuItem &&
@@ -104,8 +150,20 @@ export const updateMenuItem = async (menuItemId, menuItem) => {
     ) {
         return {
             success: false,
-            message: "Menu item already exists."
+            message: "Menu item already exists for this branch."
         };
+    }
+
+    if (menuItem.isAvailable === undefined) {
+        menuItem.isAvailable = existingMenuItem[0].IsAvailable;
+    }
+
+    if (menuItem.isPopular === undefined) {
+        menuItem.isPopular = existingMenuItem[0].IsPopular;
+    }
+
+    if (menuItem.isActive === undefined) {
+        menuItem.isActive = existingMenuItem[0].IsActive;
     }
 
     menuItem.menuItemId = Number(menuItemId);

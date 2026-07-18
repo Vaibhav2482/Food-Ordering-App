@@ -4,8 +4,11 @@ import { getDashboardSummary,
   getTopSellingItems,
   getSalesLast7Days
  } from "../controllers/DashboardController.js";
+import { authenticate, authorize } from "../middleware/Auth.js";
 
 const router = express.Router();
+
+router.use(authenticate, authorize("admin"));
 
 router.get("/summary", getDashboardSummary);
 router.get("/recent-orders", getRecentOrders);

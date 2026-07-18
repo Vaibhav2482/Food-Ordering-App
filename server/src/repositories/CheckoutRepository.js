@@ -1,10 +1,10 @@
-import sql from "../config/db.js";
 import * as CartRepository from "./CartRepository.js";
 import * as OrderRepository from "./OrderRepository.js";
 
 export const checkout = async (
     customerId,
     addressId,
+    deliveryType,
     paymentMethod,
     notes
 ) => {
@@ -26,6 +26,7 @@ export const checkout = async (
     const order = await OrderRepository.createOrder({
         customerId,
         addressId,
+        deliveryType,
         paymentMethod,
         notes,
         items

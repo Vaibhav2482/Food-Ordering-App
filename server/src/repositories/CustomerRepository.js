@@ -17,6 +17,23 @@ export const getCustomerByEmail = async (email) => {
 
 };
 
+export const getCustomerByPhone = async (phone) => {
+
+    const pool = await sql.connect();
+
+    const result = await pool
+        .request()
+        .input("Phone", sql.NVarChar(15), phone)
+        .query(`
+            SELECT *
+            FROM dbo.Customers
+            WHERE Phone = @Phone
+        `);
+
+    return result.recordset[0];
+
+};
+
 export const createCustomer = async (customer) => {
 
     const pool = await sql.connect();
@@ -33,14 +50,13 @@ export const createCustomer = async (customer) => {
 
 };
 
-export const customerLogin = async (email, password) => {
+export const customerLogin = async (email) => {
 
     const pool = await sql.connect();
 
     const result = await pool
         .request()
         .input("Email", sql.NVarChar(100), email)
-        .input("Password", sql.NVarChar(255), password)
         .execute("sp_CustomerLogin");
 
     return result.recordset[0];

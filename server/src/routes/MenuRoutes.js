@@ -1,17 +1,18 @@
 import express from "express";
 import {
   getAllMenuItems,
-  getMenuItemById, 
-  createMenuItem, 
+  getMenuItemById,
+  createMenuItem,
   updateMenuItem,
   deleteMenuItem
 } from "../controllers/MenuController.js";
+import { authenticate, authorize, authenticateOptional } from "../middleware/Auth.js";
 
 const router = express.Router();
 
-router.get("/", getAllMenuItems);
+router.get("/", authenticateOptional, getAllMenuItems);
 router.get("/:id", getMenuItemById);
-router.post("/", createMenuItem);
-router.put("/:id", updateMenuItem);
-router.delete("/:id", deleteMenuItem);
+router.post("/", authenticate, authorize("admin"), createMenuItem);
+router.put("/:id", authenticate, authorize("admin"), updateMenuItem);
+router.delete("/:id", authenticate, authorize("admin"), deleteMenuItem);
 export default router;

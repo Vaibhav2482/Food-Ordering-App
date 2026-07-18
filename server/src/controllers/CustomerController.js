@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import * as CustomerService from "../services/CustomerService.js";
 import asyncHandler from "../utils/AsyncHandler.js";
 import { successResponse, errorResponse } from "../utils/ApiResponse.js";
@@ -20,11 +21,23 @@ export const registerCustomer = asyncHandler(async (req, res) => {
 });
 
 
-export const customerLogin = asyncHandler(async (req, res) => {
+export const getOrCreateGuestCustomer = asyncHandler(async (req, res) => {
 
-    const { email, password } = req.body;
+    const result = await CustomerService.getOrCreateGuestCustomer();
 
-    const result = await CustomerService.customerLogin(email, password);
+    return successResponse(
+        res,
+        result.data,
+        result.message,
+        200
+    );
+
+});
+
+
+export const findOrCreateWalkInCustomer = asyncHandler(async (req, res) => {
+
+    const result = await CustomerService.findOrCreateWalkInCustomer(req.body);
 
     if (!result.success) {
         return errorResponse(res, result.message, 400);
@@ -33,6 +46,32 @@ export const customerLogin = asyncHandler(async (req, res) => {
     return successResponse(
         res,
         result.data,
+        result.message,
+        200
+    );
+
+});
+
+
+export const customerLogin = asyncHandler(async (req, res) => {
+
+    const { email, password } = req.body;
+
+    const result = await CustomerService.customerLogin(email, password);
+
+    if (!result.success) {
+        return errorResponse(res, result.message, 401);
+    }
+
+    const token = jwt.sign(
+        { id: result.data.CustomerId, role: "customer", email: result.data.Email },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
+    );
+
+    return successResponse(
+        res,
+        { ...result.data, token },
         result.message
     );
 
@@ -41,6 +80,10 @@ export const customerLogin = asyncHandler(async (req, res) => {
 export const getCustomerById = asyncHandler(async (req, res) => {
 
     const { id } = req.params;
+
+    if (req.user.role !== "admin" && String(req.user.id) !== String(id)) {
+        return errorResponse(res, "You are not authorized to view this customer.", 403);
+    }
 
     const result = await CustomerService.getCustomerById(id);
 
@@ -58,6 +101,10 @@ export const getCustomerById = asyncHandler(async (req, res) => {
 
 export const updateCustomer = asyncHandler(async (req, res) => {
     const { id } = req.params;
+
+    if (req.user.role !== "admin" && String(req.user.id) !== String(id)) {
+        return errorResponse(res, "You are not authorized to update this customer.", 403);
+    }
 
     const result = await CustomerService.updateCustomer(id, req.body);
 

@@ -1,6 +1,11 @@
 import * as OrderRepository from "../repositories/OrderRepository.js";
+import * as MenuRepository from "../repositories/MenuRepository.js";
 
-export const createOrder = async (order) => {
+const VALID_DELIVERY_TYPES = ["Delivery", "Dine In", "Takeaway"];
+
+export const createOrder = async (order, restrictToBranchId) => {
+
+    const deliveryType = order.deliveryType || "Delivery";
 
     if (!order.customerId) {
         return {
@@ -9,10 +14,24 @@ export const createOrder = async (order) => {
         };
     }
 
-    if (!order.addressId) {
+    if (!VALID_DELIVERY_TYPES.includes(deliveryType)) {
         return {
             success: false,
-            message: "Address Id is required."
+            message: "Order type must be Delivery, Dine In or Takeaway."
+        };
+    }
+
+    if (deliveryType === "Delivery" && !order.addressId) {
+        return {
+            success: false,
+            message: "Address Id is required for delivery orders."
+        };
+    }
+
+    if (deliveryType === "Dine In" && (!order.tableNumber || String(order.tableNumber).trim() === "")) {
+        return {
+            success: false,
+            message: "Table number is required for dine-in orders."
         };
     }
 
@@ -46,9 +65,27 @@ export const createOrder = async (order) => {
             };
         }
 
+        if (restrictToBranchId) {
+
+            const menuItem = await MenuRepository.getMenuItemById(item.menuItemId);
+
+            if (!menuItem || menuItem.length === 0 || String(menuItem[0].BranchId) !== String(restrictToBranchId)) {
+                return {
+                    success: false,
+                    message: "You can only place orders using your own branch's menu."
+                };
+            }
+
+        }
+
     }
 
-    const createdOrder = await OrderRepository.createOrder(order);
+    const createdOrder = await OrderRepository.createOrder({
+        ...order,
+        deliveryType,
+        addressId: deliveryType === "Delivery" ? order.addressId : null,
+        tableNumber: deliveryType === "Dine In" ? order.tableNumber : null
+    });
 
     return {
         success: true,
@@ -56,13 +93,30 @@ export const createOrder = async (order) => {
         data: createdOrder
     };
 
-
-    
 };
 
-export const getAllOrders = async () => {
+export const getActiveTableOrders = async (branchId) => {
 
-    const orders = await OrderRepository.getAllOrders();
+    if (!branchId) {
+        return {
+            success: false,
+            message: "Branch Id is required."
+        };
+    }
+
+    const orders = await OrderRepository.getActiveTableOrders(branchId);
+
+    return {
+        success: true,
+        message: "Active table orders fetched successfully.",
+        data: orders
+    };
+
+};
+
+export const getAllOrders = async (branchId) => {
+
+    const orders = await OrderRepository.getAllOrders(branchId);
 
     return {
         success: true,
@@ -94,13 +148,6 @@ export const getOrderById = async (orderId) => {
 export const getOrdersByCustomer = async (customerId) => {
 
     const orders = await OrderRepository.getOrdersByCustomer(customerId);
-
-    if (orders.length === 0) {
-        return {
-            success: false,
-            message: "No orders found for this customer."
-        };
-    }
 
     return {
         success: true,
@@ -136,6 +183,59 @@ export const updateOrderStatus = async (orderId, orderStatus) => {
     return {
         success: true,
         message: "Order status updated successfully.",
+        data: updatedOrder
+    };
+
+};
+
+export const updateOrderItems = async (orderId, items) => {
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+        return {
+            success: false,
+            message: "Order must contain at least one item."
+        };
+    }
+
+    for (const item of items) {
+
+        if (!item.menuItemId) {
+            return {
+                success: false,
+                message: "Menu Item Id is required."
+            };
+        }
+
+        if (!item.quantity || item.quantity <= 0) {
+            return {
+                success: false,
+                message: "Quantity must be greater than zero."
+            };
+        }
+
+    }
+
+    const existingOrder = await OrderRepository.getOrderById(orderId);
+
+    if (existingOrder.length === 0) {
+        return {
+            success: false,
+            message: "Order not found."
+        };
+    }
+
+    if (existingOrder[0].OrderStatus !== "Pending") {
+        return {
+            success: false,
+            message: "Only pending orders can have their items edited."
+        };
+    }
+
+    const updatedOrder = await OrderRepository.updateOrderItems(orderId, items);
+
+    return {
+        success: true,
+        message: "Order items updated successfully.",
         data: updatedOrder
     };
 

@@ -7,8 +7,11 @@ import {
     removeCartItem,
     clearCart
 } from "../controllers/CartController.js";
+import { authenticate, authorize } from "../middleware/Auth.js";
 
 const router = express.Router();
+
+router.use(authenticate, authorize("customer", "admin"));
 
 router.post("/", addToCart);
 

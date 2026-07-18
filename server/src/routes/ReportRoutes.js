@@ -8,8 +8,11 @@ import {
     getCustomDateSalesReport
 
 } from "../controllers/ReportController.js";
+import { authenticate, authorize } from "../middleware/Auth.js";
 
 const router = express.Router();
+
+router.use(authenticate, authorize("admin"));
 
 router.get(
 

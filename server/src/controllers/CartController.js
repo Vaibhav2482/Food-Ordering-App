@@ -4,6 +4,10 @@ import { successResponse, errorResponse } from "../utils/ApiResponse.js";
 
 export const addToCart = asyncHandler(async (req, res) => {
 
+    if (req.user.role !== "admin" && String(req.user.id) !== String(req.body.customerId)) {
+        return errorResponse(res, "You are not authorized to modify this cart.", 403);
+    }
+
     const result = await CartService.addToCart(req.body);
 
     if (!result.success) {
@@ -22,6 +26,10 @@ export const addToCart = asyncHandler(async (req, res) => {
 export const getCart = asyncHandler(async (req, res) => {
 
     const { customerId } = req.params;
+
+    if (req.user.role !== "admin" && String(req.user.id) !== String(customerId)) {
+        return errorResponse(res, "You are not authorized to view this cart.", 403);
+    }
 
     const result = await CartService.getCart(customerId);
 
@@ -73,6 +81,10 @@ export const removeCartItem = asyncHandler(async (req, res) => {
 export const clearCart = asyncHandler(async (req, res) => {
 
     const { customerId } = req.params;
+
+    if (req.user.role !== "admin" && String(req.user.id) !== String(customerId)) {
+        return errorResponse(res, "You are not authorized to modify this cart.", 403);
+    }
 
     const result = await CartService.clearCart(customerId);
 

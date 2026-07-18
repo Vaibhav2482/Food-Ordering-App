@@ -48,13 +48,13 @@ function SalesChart({
 
             sx={{
 
-                borderRadius: 4,
+                borderRadius: 3,
 
                 border: "1px solid #ECECEC",
 
-                p: 3,
+                p: 2.5,
 
-                height: 430,
+                height: 340,
 
                 display: "flex",
 
@@ -72,7 +72,7 @@ function SalesChart({
 
                 alignItems="center"
 
-                mb={3}
+                mb={2}
 
             >
 
@@ -80,7 +80,7 @@ function SalesChart({
 
                     <Typography
 
-                        variant="h6"
+                        variant="subtitle1"
 
                         fontWeight={700}
 
@@ -94,7 +94,7 @@ function SalesChart({
 
                         color="text.secondary"
 
-                        fontSize={13}
+                        fontSize={12.5}
 
                     >
 
@@ -116,7 +116,7 @@ function SalesChart({
 
                         variant="rounded"
 
-                        height={320}
+                        height={250}
 
                     />
 

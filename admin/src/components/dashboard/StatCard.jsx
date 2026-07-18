@@ -13,7 +13,8 @@ function StatCard({
     icon,
     color,
     subtitle,
-    loading
+    loading,
+    onClick
 
 }) {
 
@@ -23,21 +24,25 @@ function StatCard({
 
             elevation={0}
 
+            onClick={onClick}
+
             sx={{
 
-                borderRadius: 4,
+                borderRadius: 3,
 
                 border: "1px solid #ECECEC",
 
-                transition: "0.25s",
+                transition: "0.2s",
 
                 height: "100%",
 
+                cursor: onClick ? "pointer" : "default",
+
                 "&:hover": {
 
-                    transform: "translateY(-4px)",
+                    transform: onClick ? "translateY(-2px)" : "none",
 
-                    boxShadow: "0 12px 28px rgba(0,0,0,0.08)"
+                    boxShadow: onClick ? "0 8px 20px rgba(0,0,0,0.06)" : "none"
 
                 }
 
@@ -47,7 +52,8 @@ function StatCard({
 
             <CardContent
                 sx={{
-                    p: 3
+                    p: 2,
+                    "&:last-child": { pb: 2 }
                 }}
             >
 
@@ -59,9 +65,11 @@ function StatCard({
 
                     alignItems="center"
 
+                    gap={1.5}
+
                 >
 
-                    <Box flex={1}>
+                    <Box flex={1} sx={{ minWidth: 0 }}>
 
                         {
 
@@ -69,7 +77,7 @@ function StatCard({
 
                                 ?
 
-                                <Skeleton width={90} />
+                                <Skeleton width={80} height={18} />
 
                                 :
 
@@ -77,9 +85,11 @@ function StatCard({
 
                                     color="text.secondary"
 
-                                    fontSize={14}
+                                    fontSize={12.5}
 
                                     fontWeight={600}
+
+                                    noWrap
 
                                 >
 
@@ -96,19 +106,21 @@ function StatCard({
                                 ?
 
                                 <Skeleton
-                                    width={120}
-                                    height={55}
+                                    width={90}
+                                    height={34}
                                 />
 
                                 :
 
                                 <Typography
 
-                                    variant="h4"
+                                    variant="h6"
 
                                     fontWeight={800}
 
-                                    mt={1}
+                                    mt={0.25}
+
+                                    noWrap
 
                                 >
 
@@ -125,18 +137,21 @@ function StatCard({
                                 ?
 
                                 <Skeleton
-                                    width={110}
+                                    width={90}
+                                    height={16}
                                 />
 
                                 :
 
                                 <Typography
 
-                                    mt={1}
+                                    mt={0.25}
 
-                                    fontSize={13}
+                                    fontSize={11.5}
 
                                     color="text.secondary"
+
+                                    noWrap
 
                                 >
 
@@ -152,11 +167,13 @@ function StatCard({
 
                         sx={{
 
-                            width: 70,
+                            width: 42,
 
-                            height: 70,
+                            height: 42,
 
-                            borderRadius: 4,
+                            flexShrink: 0,
+
+                            borderRadius: 2.5,
 
                             bgcolor: `${color}15`,
 
@@ -170,7 +187,7 @@ function StatCard({
 
                             "& svg": {
 
-                                fontSize: 34
+                                fontSize: 22
 
                             }
 

@@ -27,23 +27,27 @@ function Login() {
     const navigate = useNavigate();
   useEffect(() => {
 
-    const admin = JSON.parse(
+    let admin = null;
 
-        localStorage.getItem("admin")
-
-    );
+    try {
+        admin = JSON.parse(localStorage.getItem("admin"));
+    } catch {
+        localStorage.removeItem("admin");
+    }
 
     if (
 
         admin &&
 
-        admin.AdminId
+        admin.AdminId &&
+
+        admin.token
 
     ) {
 
         navigate(
 
-            "/dashboard",
+            "/orders",
 
             {
 
@@ -68,6 +72,8 @@ function Login() {
 
     });
 
+    const [errors, setErrors] = useState({ email: "", password: "" });
+
     const handleChange = (event) => {
 
         const {
@@ -86,21 +92,29 @@ function Login() {
 
         }));
 
+        if (errors[name]) {
+
+            setErrors((prev) => ({ ...prev, [name]: "" }));
+
+        }
+
     };
 
     const handleLogin = async () => {
 
+        const nextErrors = { email: "", password: "" };
+
         if (formData.email.trim() === "") {
-
-            toast.error("Email is required.");
-
-            return;
-
+            nextErrors.email = "Email is required.";
         }
 
         if (formData.password.trim() === "") {
+            nextErrors.password = "Password is required.";
+        }
 
-            toast.error("Password is required.");
+        setErrors(nextErrors);
+
+        if (nextErrors.email || nextErrors.password) {
 
             return;
 
@@ -130,7 +144,7 @@ function Login() {
 
             toast.success(response.message);
 
-            navigate("/dashboard");
+            navigate("/orders");
 
         }
         catch (error) {
@@ -226,6 +240,8 @@ function Login() {
 
                     fullWidth
 
+                    required
+
                     label="Email"
 
                     name="email"
@@ -236,11 +252,17 @@ function Login() {
 
                     margin="normal"
 
+                    error={Boolean(errors.email)}
+
+                    helperText={errors.email}
+
                 />
 
                 <TextField
 
                     fullWidth
+
+                    required
 
                     margin="normal"
 
@@ -251,6 +273,10 @@ function Login() {
                     value={formData.password}
 
                     onChange={handleChange}
+
+                    error={Boolean(errors.password)}
+
+                    helperText={errors.password}
 
                     type={
 

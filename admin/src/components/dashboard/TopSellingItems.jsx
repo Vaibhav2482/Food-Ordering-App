@@ -51,26 +51,26 @@ function TopSellingItems({
 
                 sx={{
 
-                    borderRadius: 4,
+                    borderRadius: 3,
 
                     border: "1px solid #ECECEC",
 
-                    p: 3,
+                    p: 2.5,
 
-                    height: 450
+                    height: 340
 
                 }}
 
             >
 
                 <Skeleton
-                    height={40}
-                    width={170}
+                    height={32}
+                    width={150}
                 />
 
                 <Skeleton
                     variant="rounded"
-                    height={330}
+                    height={260}
                     sx={{ mt: 2 }}
                 />
 
@@ -96,13 +96,13 @@ function TopSellingItems({
 
             sx={{
 
-                borderRadius: 4,
+                borderRadius: 3,
 
                 border: "1px solid #ECECEC",
 
-                p: 3,
+                p: 2.5,
 
-                height: 450,
+                height: 340,
 
                 overflow: "auto"
 
@@ -112,7 +112,7 @@ function TopSellingItems({
 
             <Typography
 
-                variant="h6"
+                variant="subtitle1"
 
                 fontWeight={700}
 
@@ -126,15 +126,34 @@ function TopSellingItems({
 
                 color="text.secondary"
 
-                fontSize={13}
+                fontSize={12.5}
 
-                mb={3}
+                mb={2}
 
             >
 
                 Best performing menu items
 
             </Typography>
+
+            {items.length === 0 && (
+
+                <Box
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        height: 230
+                    }}
+                >
+
+                    <Typography color="text.secondary">
+                        No sales yet.
+                    </Typography>
+
+                </Box>
+
+            )}
 
             <List disablePadding>
 
@@ -156,7 +175,7 @@ function TopSellingItems({
 
                             >
 
-                                <ListItemAvatar>
+                                <ListItemAvatar sx={{ minWidth: 44 }}>
 
                                     <Avatar
 
@@ -166,9 +185,11 @@ function TopSellingItems({
 
                                             color: "#fff",
 
-                                            width: 48,
+                                            width: 34,
 
-                                            height: 48
+                                            height: 34,
+
+                                            "& svg": { fontSize: 18 }
 
                                         }}
 
@@ -181,6 +202,8 @@ function TopSellingItems({
                                 </ListItemAvatar>
 
                                 <ListItemText
+
+                                    slotProps={{ secondary: { component: "div" } }}
 
                                     primary={
 
@@ -196,6 +219,8 @@ function TopSellingItems({
 
                                                 fontWeight={700}
 
+                                                fontSize={14}
+
                                             >
 
                                                 {item.ItemName}
@@ -205,6 +230,8 @@ function TopSellingItems({
                                             <Typography
 
                                                 fontWeight={700}
+
+                                                fontSize={13}
 
                                                 color="#F58220"
 
@@ -226,7 +253,9 @@ function TopSellingItems({
 
                                                 variant="body2"
 
-                                                sx={{ mt: 0.5 }}
+                                                fontSize={12.5}
+
+                                                sx={{ mt: 0.25 }}
 
                                             >
 
@@ -247,6 +276,8 @@ function TopSellingItems({
                                             <Typography
 
                                                 variant="body2"
+
+                                                fontSize={12.5}
 
                                                 color="#22C55E"
 
@@ -270,9 +301,9 @@ function TopSellingItems({
 
                                                 sx={{
 
-                                                    mt: 1,
+                                                    mt: 0.75,
 
-                                                    height: 8,
+                                                    height: 6,
 
                                                     borderRadius: 5
 
@@ -296,7 +327,7 @@ function TopSellingItems({
 
                                     sx={{
 
-                                        my: 2
+                                        my: 1
 
                                     }}
 

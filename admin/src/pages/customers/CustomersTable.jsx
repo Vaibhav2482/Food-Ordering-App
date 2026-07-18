@@ -1,4 +1,5 @@
 import {
+    Box,
     CircularProgress,
     IconButton,
     Paper,
@@ -30,39 +31,18 @@ function CustomersTable({
 
         return (
 
-            <Paper
+            <Box
                 sx={{
-                    p: 5,
-                    textAlign: "center"
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: 350
                 }}
             >
 
-                <CircularProgress />
+                <CircularProgress color="warning" />
 
-            </Paper>
-
-        );
-
-    }
-
-    if (customers.length === 0) {
-
-        return (
-
-            <Paper
-                sx={{
-                    p: 5,
-                    textAlign: "center"
-                }}
-            >
-
-                <Typography>
-
-                    No customers found.
-
-                </Typography>
-
-            </Paper>
+            </Box>
 
         );
 
@@ -70,7 +50,14 @@ function CustomersTable({
 
     return (
 
-        <TableContainer component={Paper}>
+        <TableContainer
+            component={Paper}
+            sx={{
+                mt: 3,
+                borderRadius: 4,
+                boxShadow: "0 8px 24px rgba(0,0,0,.08)"
+            }}
+        >
 
             <Table>
 
@@ -115,6 +102,29 @@ function CustomersTable({
                 <TableBody>
 
                     {
+
+                        customers.length === 0 ? (
+
+                            <TableRow>
+
+                                <TableCell
+                                    colSpan={5}
+                                    align="center"
+                                    sx={{ py: 8 }}
+                                >
+
+                                    <Typography
+                                        variant="h6"
+                                        color="text.secondary"
+                                    >
+                                        No customers found.
+                                    </Typography>
+
+                                </TableCell>
+
+                            </TableRow>
+
+                        ) : (
 
                         customers.map((customer) => (
 
@@ -213,6 +223,8 @@ function CustomersTable({
                             </TableRow>
 
                         ))
+
+                        )
 
                     }
 

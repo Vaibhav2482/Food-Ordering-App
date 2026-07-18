@@ -1,10 +1,26 @@
-import axios from "axios";
+import axiosClient from "../api/axiosClient";
 
-const API_URL = "http://localhost:5000/api/v1/customers";
+const API_URL = "/customers";
 
 export const getAllCustomers = async () => {
 
-    const response = await axios.get(API_URL);
+    const response = await axiosClient.get(API_URL);
+
+    return response.data;
+
+};
+
+export const findOrCreateWalkInCustomer = async (customer) => {
+
+    const response = await axiosClient.post(`${API_URL}/walk-in`, customer);
+
+    return response.data;
+
+};
+
+export const getOrCreateGuestCustomer = async () => {
+
+    const response = await axiosClient.post(`${API_URL}/guest`);
 
     return response.data;
 
@@ -12,10 +28,8 @@ export const getAllCustomers = async () => {
 
 export const getCustomerById = async (customerId) => {
 
-    const response = await axios.get(
-
+    const response = await axiosClient.get(
         `${API_URL}/${customerId}`
-
     );
 
     return response.data;
@@ -24,12 +38,9 @@ export const getCustomerById = async (customerId) => {
 
 export const updateCustomer = async (customerId, customer) => {
 
-    const response = await axios.put(
-
+    const response = await axiosClient.put(
         `${API_URL}/${customerId}`,
-
         customer
-
     );
 
     return response.data;
@@ -38,10 +49,8 @@ export const updateCustomer = async (customerId, customer) => {
 
 export const deleteCustomer = async (customerId) => {
 
-    const response = await axios.delete(
-
+    const response = await axiosClient.delete(
         `${API_URL}/${customerId}`
-
     );
 
     return response.data;

@@ -1,26 +1,28 @@
 import {
     Avatar,
     Box,
-    Chip,
+    CircularProgress,
     IconButton,
     Paper,
+    Stack,
+    Switch,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    Typography,
-    CircularProgress
+    Tooltip,
+    Typography
 } from "@mui/material";
 
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
-import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 
 function MenuTable({
     menuItems,
     onEdit,
-    onDelete,
+    onToggleAvailable,
+    onToggleActive,
     loading }) {
 
     if (loading) {
@@ -66,7 +68,8 @@ function MenuTable({
                         <TableCell>Item Name</TableCell>
                         <TableCell>Category</TableCell>
                         <TableCell>Price</TableCell>
-                        <TableCell>Status</TableCell>
+                        <TableCell>In Stock</TableCell>
+                        <TableCell>Visible to Customers</TableCell>
                         <TableCell align="center">Actions</TableCell>
 
                     </TableRow>
@@ -81,7 +84,7 @@ function MenuTable({
             <TableRow>
 
                 <TableCell
-                    colSpan={6}
+                    colSpan={7}
                     align="center"
                     sx={{
                         py: 8
@@ -138,25 +141,35 @@ function MenuTable({
 
                     <TableCell>
 
-                        <Chip
-                            label={
-                                item.IsAvailable
-                                    ? "Available"
-                                    : "Unavailable"
-                            }
-                            color={
-                                item.IsAvailable
-                                    ? "success"
-                                    : "error"
-                            }
-                            size="small"
-                        />
+                        <Tooltip title={item.IsAvailable ? "In stock - orderable" : "Sold out - shown as Unavailable"}>
+
+                            <Switch
+                                checked={item.IsAvailable}
+                                onChange={() => onToggleAvailable(item)}
+                                color="success"
+                            />
+
+                        </Tooltip>
+
+                    </TableCell>
+
+                    <TableCell>
+
+                        <Tooltip title={item.IsActive ? "Visible on the customer menu" : "Hidden from the customer menu entirely"}>
+
+                            <Switch
+                                checked={item.IsActive}
+                                onChange={() => onToggleActive(item)}
+                                color="success"
+                            />
+
+                        </Tooltip>
 
                     </TableCell>
 
                     <TableCell align="center">
 
-                        <Box>
+                        <Stack direction="row" justifyContent="center">
 
                             <IconButton
                                 color="primary"
@@ -165,14 +178,7 @@ function MenuTable({
                                 <EditRoundedIcon />
                             </IconButton>
 
-                            <IconButton
-                                color="error"
-                                onClick={() => onDelete(item.MenuItemId)}
-                            >
-                                <DeleteRoundedIcon />
-                            </IconButton>
-
-                        </Box>
+                        </Stack>
 
                     </TableCell>
 

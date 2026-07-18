@@ -1,15 +1,17 @@
 import {
+    Alert,
+    Box,
     Button,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
     Divider,
-    FormControl,
-    InputLabel,
-    MenuItem,
+    GlobalStyles,
     Paper,
-    Select,
+    Step,
+    StepLabel,
+    Stepper,
     Table,
     TableBody,
     TableCell,
@@ -20,27 +22,71 @@ import {
 } from "@mui/material";
 
 import { useEffect, useState } from "react";
+import PrintRoundedIcon from "@mui/icons-material/PrintRounded";
+import EditRoundedIcon from "@mui/icons-material/EditRounded";
+
+import { getStatusSteps, isTerminal } from "../../utils/orderStatus";
+import { getPaymentByOrderId } from "../../services/paymentService";
+import QuickStatusControl from "./QuickStatusControl";
+import EditOrderItemsDialog from "./EditOrderItemsDialog";
+import BillContent from "./BillContent";
+
+const printStyles = {
+    "@media print": {
+        "body *": { visibility: "hidden" },
+        ".order-print-area, .order-print-area *": { visibility: "visible" },
+        ".order-print-area": {
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: "100%"
+        }
+    }
+};
 
 function OrderDetailsDialog({
 
     open,
     onClose,
     order,
-    onStatusChange
+    onStatusChange,
+    onCancel,
+    onItemsUpdated
 
 }) {
 
-    const [status, setStatus] = useState("");
+    const [editItemsOpen, setEditItemsOpen] = useState(false);
+    const [payment, setPayment] = useState(null);
+
+    const orderId = order?.[0]?.OrderId;
 
     useEffect(() => {
 
-        if (order && order.length > 0) {
-
-            setStatus(order[0].OrderStatus);
-
+        if (!open || !orderId) {
+            return;
         }
 
-    }, [order]);
+        setPayment(null);
+
+        (async () => {
+
+            try {
+
+                const response = await getPaymentByOrderId(orderId);
+
+                if (response.data?.length > 0) {
+                    setPayment(response.data[0]);
+                }
+
+            } catch {
+
+                // No payment recorded yet — bill still prints fine without it.
+
+            }
+
+        })();
+
+    }, [open, orderId]);
 
     if (!order || order.length === 0) {
 
@@ -49,22 +95,32 @@ function OrderDetailsDialog({
     }
 
     const orderInfo = order[0];
+    const currentStatus = orderInfo.OrderStatus;
+    const isCancelled = currentStatus === "Cancelled";
+    const statusSteps = getStatusSteps(orderInfo.DeliveryType);
+    const activeStep = statusSteps.indexOf(currentStatus);
 
-    const handleUpdate = async () => {
+    const handleStatusChange = async (orderId, orderStatus) => {
 
-        const success = await onStatusChange(
-
-            orderInfo.OrderId,
-
-            status
-
-        );
+        const success = await onStatusChange(orderId, orderStatus);
 
         if (success) {
-
             onClose();
-
         }
+
+        return success;
+
+    };
+
+    const handleCancelOrder = async (orderId) => {
+
+        const success = await onCancel(orderId);
+
+        if (success) {
+            onClose();
+        }
+
+        return success;
 
     };
 
@@ -77,96 +133,98 @@ function OrderDetailsDialog({
             maxWidth="md"
         >
 
+            <GlobalStyles styles={printStyles} />
+
+            <Box className="order-print-area" sx={{ display: "none", "@media print": { display: "block" } }}>
+                <BillContent order={order} payment={payment} />
+            </Box>
+
             <DialogTitle>
-
                 Order Details
-
             </DialogTitle>
 
             <DialogContent>
 
                 <Typography>
-
                     <strong>Order ID :</strong> #{orderInfo.OrderId}
-
                 </Typography>
 
                 <Typography>
-
                     <strong>Customer :</strong> {orderInfo.CustomerName}
-
                 </Typography>
 
                 <Typography>
-
                     <strong>Payment :</strong> {orderInfo.PaymentMethod}
-
                 </Typography>
 
                 <Typography>
+                    <strong>Order Type :</strong> {orderInfo.DeliveryType}
+                    {orderInfo.DeliveryType === "Dine In" && orderInfo.TableNumber &&
+                        ` (Table ${orderInfo.TableNumber})`}
+                </Typography>
 
+                <Typography sx={{ mb: 3 }}>
                     <strong>Total :</strong> ₹ {orderInfo.TotalAmount}
-
                 </Typography>
 
-                <Typography>
+                {isCancelled ? (
 
-                    <strong>Status :</strong>
+                    <Alert severity="error" sx={{ mb: 3 }}>
+                        This order has been cancelled.
+                    </Alert>
 
-                </Typography>
+                ) : (
 
-                <FormControl
-                    fullWidth
-                    sx={{ mt: 2, mb: 3 }}
-                >
+                    <Box sx={{ overflowX: "auto", mb: 3 }}>
 
-                    <InputLabel>
+                        <Stepper activeStep={activeStep} alternativeLabel sx={{ minWidth: 480 }}>
 
-                        Status
+                            {statusSteps.map((step) => (
+                                <Step key={step}>
+                                    <StepLabel>{step}</StepLabel>
+                                </Step>
+                            ))}
 
-                    </InputLabel>
+                        </Stepper>
 
-                    <Select
-                        value={status}
-                        label="Status"
-                        onChange={(event) =>
-                            setStatus(
-                                event.target.value
-                            )
-                        }
-                    >
+                    </Box>
 
-                        <MenuItem value="Pending">
-                            Pending
-                        </MenuItem>
+                )}
 
-                        <MenuItem value="Accepted">
-                            Accepted
-                        </MenuItem>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3, flexWrap: "wrap" }}>
 
-                        <MenuItem value="Preparing">
-                            Preparing
-                        </MenuItem>
+                    {!isTerminal(currentStatus) && (
 
-                        <MenuItem value="Ready">
-                            Ready
-                        </MenuItem>
+                        <QuickStatusControl
+                            order={orderInfo}
+                            onStatusChange={handleStatusChange}
+                            onCancelOrder={handleCancelOrder}
+                            size="medium"
+                        />
 
-                        <MenuItem value="Out For Delivery">
-                            Out For Delivery
-                        </MenuItem>
+                    )}
 
-                        <MenuItem value="Delivered">
-                            Delivered
-                        </MenuItem>
+                    {currentStatus === "Pending" && (
 
-                        <MenuItem value="Cancelled">
-                            Cancelled
-                        </MenuItem>
+                        <Button
+                            variant="outlined"
+                            startIcon={<EditRoundedIcon />}
+                            onClick={() => setEditItemsOpen(true)}
+                        >
+                            Edit Items
+                        </Button>
 
-                    </Select>
+                    )}
 
-                </FormControl>
+                    {isTerminal(currentStatus) && (
+
+                        <Typography color="text.secondary">
+                            This order is {currentStatus.toLowerCase()} — no further action available.
+                        </Typography>
+
+                    )}
+
+                </Box>
 
                 <Divider sx={{ mb: 2 }} />
 
@@ -177,74 +235,26 @@ function OrderDetailsDialog({
                         <TableHead>
 
                             <TableRow>
-
-                                <TableCell>
-
-                                    Item
-
-                                </TableCell>
-
-                                <TableCell>
-
-                                    Price
-
-                                </TableCell>
-
-                                <TableCell>
-
-                                    Qty
-
-                                </TableCell>
-
-                                <TableCell>
-
-                                    Total
-
-                                </TableCell>
-
+                                <TableCell>Item</TableCell>
+                                <TableCell>Price</TableCell>
+                                <TableCell>Qty</TableCell>
+                                <TableCell>Total</TableCell>
                             </TableRow>
 
                         </TableHead>
 
                         <TableBody>
 
-                            {
+                            {order.map((item) => (
 
-                                order.map((item) => (
+                                <TableRow key={item.OrderItemId}>
+                                    <TableCell>{item.ItemName}</TableCell>
+                                    <TableCell>₹ {item.Price}</TableCell>
+                                    <TableCell>{item.Quantity}</TableCell>
+                                    <TableCell>₹ {item.TotalPrice}</TableCell>
+                                </TableRow>
 
-                                    <TableRow
-                                        key={item.OrderItemId}
-                                    >
-
-                                        <TableCell>
-
-                                            {item.ItemName}
-
-                                        </TableCell>
-
-                                        <TableCell>
-
-                                            ₹ {item.Price}
-
-                                        </TableCell>
-
-                                        <TableCell>
-
-                                            {item.Quantity}
-
-                                        </TableCell>
-
-                                        <TableCell>
-
-                                            ₹ {item.TotalPrice}
-
-                                        </TableCell>
-
-                                    </TableRow>
-
-                                ))
-
-                            }
+                            ))}
 
                         </TableBody>
 
@@ -257,23 +267,29 @@ function OrderDetailsDialog({
             <DialogActions>
 
                 <Button
-                    onClick={onClose}
+                    startIcon={<PrintRoundedIcon />}
+                    onClick={() => window.print()}
                 >
-
-                    Close
-
+                    Print Bill
                 </Button>
 
-                <Button
-                    variant="contained"
-                    onClick={handleUpdate}
-                >
-
-                    Update Status
-
+                <Button onClick={onClose}>
+                    Close
                 </Button>
 
             </DialogActions>
+
+            <EditOrderItemsDialog
+                open={editItemsOpen}
+                onClose={() => setEditItemsOpen(false)}
+                order={order}
+                onSaved={() => {
+
+                    setEditItemsOpen(false);
+                    onItemsUpdated?.(orderInfo.OrderId);
+
+                }}
+            />
 
         </Dialog>
 

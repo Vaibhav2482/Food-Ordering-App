@@ -185,15 +185,15 @@ function Customers() {
 
     const filteredCustomers = customers.filter((customer) =>
 
-        customer.FullName
+        (customer.FullName || "")
             .toLowerCase()
             .includes(searchText.toLowerCase()) ||
 
-        customer.Email
+        (customer.Email || "")
             .toLowerCase()
             .includes(searchText.toLowerCase()) ||
 
-        customer.Phone
+        (customer.Phone || "")
             .includes(searchText)
 
     );

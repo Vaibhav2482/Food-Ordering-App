@@ -6,6 +6,7 @@ import {
     DialogTitle,
     FormControl,
     FormControlLabel,
+    FormHelperText,
     Grid,
     InputLabel,
     MenuItem,
@@ -15,6 +16,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
+const emptyErrors = { itemName: "", categoryId: "", price: "" };
 
 function MenuDialog({
 
@@ -24,9 +26,9 @@ function MenuDialog({
     onSave,
      selectedMenu,
     isEditMode
-    
 
-}) 
+
+})
 
     {
 
@@ -37,9 +39,12 @@ function MenuDialog({
         description: "",
         price: "",
         isAvailable: true,
-        isPopular: false
+        isPopular: false,
+        isActive: true
 
     });
+
+    const [errors, setErrors] = useState(emptyErrors);
 
     const handleChange = (event) => {
 
@@ -57,6 +62,12 @@ function MenuDialog({
                 : value
         }));
 
+        if (errors[name]) {
+
+            setErrors((prev) => ({ ...prev, [name]: "" }));
+
+        }
+
     };
 
     useEffect(() => {
@@ -70,7 +81,8 @@ function MenuDialog({
             description: selectedMenu.Description ?? "",
             price: selectedMenu.Price,
             isAvailable: selectedMenu.IsAvailable,
-            isPopular: selectedMenu.IsPopular
+            isPopular: selectedMenu.IsPopular,
+            isActive: selectedMenu.IsActive
 
         });
 
@@ -84,34 +96,42 @@ function MenuDialog({
             description: "",
             price: "",
             isAvailable: true,
-            isPopular: false
+            isPopular: false,
+            isActive: true
 
         });
 
     }
 
+    setErrors(emptyErrors);
+
 }, [selectedMenu, isEditMode, open]);
+
+    const validate = () => {
+
+        const nextErrors = { ...emptyErrors };
+
+        if (formData.itemName.trim() === "") {
+            nextErrors.itemName = "Item Name is required.";
+        }
+
+        if (formData.categoryId === "") {
+            nextErrors.categoryId = "Category is required.";
+        }
+
+        if (formData.price === "" || Number(formData.price) <= 0) {
+            nextErrors.price = "Price must be greater than 0.";
+        }
+
+        setErrors(nextErrors);
+
+        return Object.values(nextErrors).every((error) => error === "");
+
+    };
+
     const handleSubmit = () => {
 
-    if (formData.itemName.trim() === "") {
-
-        alert("Item Name is required.");
-
-        return;
-
-    }
-
-    if (formData.categoryId === "") {
-
-        alert("Category is required.");
-
-        return;
-
-    }
-
-    if (formData.price === "") {
-
-        alert("Price is required.");
+    if (!validate()) {
 
         return;
 
@@ -124,7 +144,8 @@ function MenuDialog({
         description: formData.description,
         price: Number(formData.price),
         isAvailable: formData.isAvailable,
-        isPopular: formData.isPopular
+        isPopular: formData.isPopular,
+        isActive: formData.isActive
 
     });
 
@@ -166,17 +187,20 @@ function MenuDialog({
 
                        <TextField
     fullWidth
+    required
     label="Item Name"
     name="itemName"
     value={formData.itemName}
     onChange={handleChange}
+    error={Boolean(errors.itemName)}
+    helperText={errors.itemName}
 />
 
                     </Grid>
 
                     <Grid size={{ xs: 12, md: 6 }}>
 
-                        <FormControl fullWidth>
+                        <FormControl fullWidth required error={Boolean(errors.categoryId)}>
 
                             <InputLabel>
                                 Category
@@ -206,6 +230,10 @@ function MenuDialog({
 
                             </Select>
 
+                            {errors.categoryId && (
+                                <FormHelperText>{errors.categoryId}</FormHelperText>
+                            )}
+
                         </FormControl>
 
                     </Grid>
@@ -228,11 +256,14 @@ function MenuDialog({
 
                         <TextField
     fullWidth
+    required
     type="number"
     label="Price"
     name="price"
     value={formData.price}
     onChange={handleChange}
+    error={Boolean(errors.price)}
+    helperText={errors.price}
 />
 
                     </Grid>
@@ -259,6 +290,19 @@ function MenuDialog({
     onChange={handleChange}
 />}
                             label="Popular"
+                        />
+
+                    </Grid>
+
+                    <Grid size={{ xs: 12, md: 3 }}>
+
+                        <FormControlLabel
+                            control={<Switch
+    name="isActive"
+    checked={formData.isActive}
+    onChange={handleChange}
+/>}
+                            label="Visible to Customers"
                         />
 
                     </Grid>
@@ -295,7 +339,7 @@ function MenuDialog({
         </Dialog>
 
     );
-    
+
 
 }
 

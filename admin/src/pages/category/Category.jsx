@@ -9,8 +9,7 @@ import CategoryDialog from "./CategoryDialog";
 import {
      getAllCategories,
     createCategory,
-    updateCategory,
-    deleteCategory
+    updateCategory
 } from "../../services/categoryService";
 
 function Category() {
@@ -121,36 +120,37 @@ const handleUpdateCategory = async (category) => {
 
 };
 
-const handleDeleteCategory = async (categoryId) => {
-
-    const confirmed = window.confirm(
-
-        "Are you sure you want to delete this category?"
-
-    );
-
-    if (!confirmed) {
-
-        return;
-
-    }
+const handleToggleActive = async (category) => {
 
     try {
 
-        const response = await deleteCategory(categoryId);
+        const response = await updateCategory(category.CategoryId, {
+
+            categoryName: category.CategoryName,
+            description: category.Description,
+            displayOrder: category.DisplayOrder,
+            isActive: !category.IsActive
+
+        });
 
         if (response.success) {
 
             await loadCategories();
 
-            toast.success("Category deleted successfully.");
+            toast.success(
+                category.IsActive
+                    ? "Category hidden from customers."
+                    : "Category is now visible to customers."
+            );
 
         }
 
     }
     catch (error) {
 
-        toast.error("Something went wrong.");
+        toast.error(
+            error.response?.data?.message || "Something went wrong."
+        );
 
     }
 
@@ -194,7 +194,7 @@ const handleEditCategory = (category) => {
     categories={filteredCategories}
     loading={loading}
     onEdit={handleEditCategory}
-    onDelete={handleDeleteCategory}
+    onToggleActive={handleToggleActive}
 />
 
             <CategoryDialog

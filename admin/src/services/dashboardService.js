@@ -1,42 +1,34 @@
-import axios from "axios";
+import axiosClient from "../api/axiosClient";
 
-const API_URL = "http://localhost:5000/api/v1/dashboard";
+const API_URL = "/dashboard";
 
-export const getDashboardSummary = async () => {
+export const getDashboardSummary = async (branchId) => {
 
-    const response = await axios.get(
-        `${API_URL}/summary`
-    );
+    const response = await axiosClient.get(`${API_URL}/summary`, { params: { branchId } });
 
     return response.data;
 
 };
 
-export const getRecentOrders = async () => {
+export const getRecentOrders = async (branchId) => {
 
-    const response = await axios.get(
-        `${API_URL}/recent-orders`
-    );
+    const response = await axiosClient.get(`${API_URL}/recent-orders`, { params: { branchId } });
 
     return response.data;
 
 };
 
-export const getTopSellingItems = async () => {
+export const getTopSellingItems = async (branchId) => {
 
-    const response = await axios.get(
-        `${API_URL}/top-selling-items`
-    );
+    const response = await axiosClient.get(`${API_URL}/top-selling-items`, { params: { branchId } });
 
     return response.data;
 
 };
 
-export const getSalesLast7Days = async () => {
+export const getSalesLast7Days = async (branchId) => {
 
-    const response = await axios.get(
-        `${API_URL}/sales-last-7-days`
-    );
+    const response = await axiosClient.get(`${API_URL}/sales-last-7-days`, { params: { branchId } });
 
     return response.data;
 

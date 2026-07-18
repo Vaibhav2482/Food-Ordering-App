@@ -1,4 +1,6 @@
 import {
+    Box,
+    CircularProgress,
     Paper,
     Table,
     TableBody,
@@ -47,25 +49,18 @@ function ReportsTable({
 
         return (
 
-            <Paper
-
-                elevation={0}
-
+            <Box
                 sx={{
-
-                    p: 4,
-
-                    borderRadius: 4,
-
-                    border: "1px solid #ECECEC"
-
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: 350
                 }}
-
             >
 
-                Loading...
+                <CircularProgress color="warning" />
 
-            </Paper>
+            </Box>
 
         );
 
@@ -186,9 +181,16 @@ function ReportsTable({
 
                                         align="center"
 
+                                        sx={{ py: 8 }}
+
                                     >
 
-                                        No Records Found
+                                        <Typography
+                                            variant="h6"
+                                            color="text.secondary"
+                                        >
+                                            No records found.
+                                        </Typography>
 
                                     </TableCell>
 

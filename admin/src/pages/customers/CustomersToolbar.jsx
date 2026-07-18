@@ -1,6 +1,5 @@
 import {
     Box,
-    Paper,
     TextField,
     Typography
 } from "@mui/material";
@@ -17,54 +16,44 @@ function CustomersToolbar({
 
     return (
 
-        <Paper
+        <Box
             sx={{
-                p: 2,
-                mb: 3,
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                gap: 2,
-                flexWrap: "wrap"
+                mb: 3,
+                flexWrap: "wrap",
+                gap: 2
             }}
         >
 
             <Typography
-                variant="h5"
+                variant="h4"
                 fontWeight={700}
             >
-                Customers
+                Customer Management
             </Typography>
 
-            <Box
+            <TextField
+                size="small"
+                placeholder="Search customers..."
+                value={searchText}
+                onChange={(event) =>
+                    setSearchText(event.target.value)
+                }
                 sx={{
-                    width: 350,
-                    maxWidth: "100%"
+                    width: 250
                 }}
-            >
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <SearchIcon fontSize="small" />
+                        </InputAdornment>
+                    )
+                }}
+            />
 
-                <TextField
-                    fullWidth
-                    size="small"
-                    placeholder="Search Customer..."
-                    value={searchText}
-                    onChange={(event) =>
-                        setSearchText(
-                            event.target.value
-                        )
-                    }
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <SearchIcon />
-                            </InputAdornment>
-                        )
-                    }}
-                />
-
-            </Box>
-
-        </Paper>
+        </Box>
 
     );
 

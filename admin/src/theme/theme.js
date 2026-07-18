@@ -54,20 +54,31 @@ const theme = createTheme({
         ].join(","),
 
         h4: {
-            fontWeight: 700
+            fontWeight: 700,
+            fontSize: "1.875rem",
+            "@media (max-width:600px)": { fontSize: "1.25rem" }
         },
 
         h5: {
-            fontWeight: 700
+            fontWeight: 700,
+            fontSize: "1.5rem",
+            "@media (max-width:600px)": { fontSize: "1.125rem" }
         },
 
         h6: {
-            fontWeight: 600
+            fontWeight: 600,
+            fontSize: "1.25rem",
+            "@media (max-width:600px)": { fontSize: "1.0625rem" }
+        },
+
+        body1: {
+            "@media (max-width:600px)": { fontSize: "0.9375rem" }
         },
 
         button: {
             textTransform: "none",
-            fontWeight: 600
+            fontWeight: 600,
+            "@media (max-width:600px)": { fontSize: "0.875rem" }
         }
 
     },
@@ -172,7 +183,11 @@ const theme = createTheme({
 
                     borderRadius: 10,
 
-                    padding: "10px 22px"
+                    padding: "10px 22px",
+
+                    "@media (max-width:600px)": {
+                        padding: "8px 16px"
+                    }
 
                 }
 

@@ -83,17 +83,19 @@ function RecentOrders({
 
             sx={{
 
-                borderRadius: 4,
+                borderRadius: 3,
 
                 border: "1px solid #ECECEC",
 
-                p: 3,
+                p: 2.5,
 
-                height: 450,
+                height: 360,
 
                 display: "flex",
 
-                flexDirection: "column"
+                flexDirection: "column",
+
+                overflow: "hidden"
 
             }}
 
@@ -107,7 +109,7 @@ function RecentOrders({
 
                 alignItems="center"
 
-                mb={3}
+                mb={1.5}
 
             >
 
@@ -115,7 +117,7 @@ function RecentOrders({
 
                     <Typography
 
-                        variant="h6"
+                        variant="subtitle1"
 
                         fontWeight={700}
 
@@ -127,7 +129,7 @@ function RecentOrders({
 
                     <Typography
 
-                        fontSize={13}
+                        fontSize={12.5}
 
                         color="text.secondary"
 
@@ -157,13 +159,32 @@ function RecentOrders({
 
                 )
 
-                :
+                : orders.length === 0 ?
 
                 (
 
-                    <TableContainer>
+                    <Box
+                        sx={{
+                            flex: 1,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+                    >
 
-                        <Table>
+                        <Typography color="text.secondary">
+                            No orders yet.
+                        </Typography>
+
+                    </Box>
+
+                )
+                :
+                (
+
+                    <TableContainer sx={{ flex: 1, overflow: "auto" }}>
+
+                        <Table size="small">
 
                             <TableHead>
 
@@ -219,7 +240,7 @@ function RecentOrders({
 
                                                 "& td": {
 
-                                                    py: 2
+                                                    py: 1
 
                                                 }
 
@@ -235,7 +256,7 @@ function RecentOrders({
 
                                                     alignItems="center"
 
-                                                    gap={2}
+                                                    gap={1.25}
 
                                                 >
 
@@ -247,9 +268,11 @@ function RecentOrders({
 
                                                             color: "#F58220",
 
-                                                            width: 42,
+                                                            width: 30,
 
-                                                            height: 42
+                                                            height: 30,
+
+                                                            "& svg": { fontSize: 16 }
 
                                                         }}
 
@@ -262,6 +285,8 @@ function RecentOrders({
                                                     <Typography
 
                                                         fontWeight={700}
+
+                                                        fontSize={13.5}
 
                                                     >
 

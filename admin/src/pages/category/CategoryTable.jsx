@@ -1,28 +1,28 @@
 import {
     Avatar,
     Box,
-    Chip,
     CircularProgress,
     IconButton,
     Paper,
+    Switch,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
+    Tooltip,
     Typography
 } from "@mui/material";
 
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
-import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 
 function CategoryTable({
 
     categories,
     loading,
     onEdit,
-    onDelete
+    onToggleActive
 
 }) {
 
@@ -79,7 +79,7 @@ function CategoryTable({
                         </TableCell>
 
                         <TableCell>
-                            Status
+                            Visible to Customers
                         </TableCell>
 
                         <TableCell align="center">
@@ -169,19 +169,15 @@ function CategoryTable({
 
                                     <TableCell>
 
-                                        <Chip
-                                            label={
-                                                category.IsActive
-                                                    ? "Active"
-                                                    : "Inactive"
-                                            }
-                                            color={
-                                                category.IsActive
-                                                    ? "success"
-                                                    : "error"
-                                            }
-                                            size="small"
-                                        />
+                                        <Tooltip title={category.IsActive ? "Visible on the customer menu" : "Hidden from the customer menu"}>
+
+                                            <Switch
+                                                checked={category.IsActive}
+                                                onChange={() => onToggleActive(category)}
+                                                color="success"
+                                            />
+
+                                        </Tooltip>
 
                                     </TableCell>
 
@@ -197,19 +193,6 @@ function CategoryTable({
                                             >
 
                                                 <EditRoundedIcon />
-
-                                            </IconButton>
-
-                                            <IconButton
-                                                color="error"
-                                                onClick={() =>
-                                                    onDelete(
-                                                        category.CategoryId
-                                                    )
-                                                }
-                                            >
-
-                                                <DeleteRoundedIcon />
 
                                             </IconButton>
 

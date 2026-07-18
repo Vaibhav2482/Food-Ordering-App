@@ -12,6 +12,8 @@ import {
 
 import { useEffect, useState } from "react";
 
+const emptyErrors = { categoryName: "", displayOrder: "" };
+
 function CategoryDialog({
 
     open,
@@ -30,6 +32,8 @@ function CategoryDialog({
     isActive: true
 
 });
+
+    const [errors, setErrors] = useState(emptyErrors);
 
     useEffect(() => {
 
@@ -58,6 +62,8 @@ function CategoryDialog({
 
         }
 
+        setErrors(emptyErrors);
+
     }, [selectedCategory, isEditMode, open]);
 
 const handleChange = (event) => {
@@ -79,28 +85,39 @@ const handleChange = (event) => {
 
     }));
 
+    if (errors[name]) {
+
+        setErrors((prev) => ({ ...prev, [name]: "" }));
+
+    }
+
+};
+
+const validate = () => {
+
+    const nextErrors = { ...emptyErrors };
+
+    if (formData.categoryName.trim() === "") {
+        nextErrors.categoryName = "Category Name is required.";
+    }
+
+    if (!formData.displayOrder || Number(formData.displayOrder) <= 0) {
+        nextErrors.displayOrder = "Display Order must be greater than 0.";
+    }
+
+    setErrors(nextErrors);
+
+    return Object.values(nextErrors).every((error) => error === "");
+
 };
 
 const handleSubmit = () => {
 
-    if (formData.categoryName.trim() === "") {
-
-        alert("Category Name is required.");
+    if (!validate()) {
 
         return;
 
     }
-
-if (
-    !formData.displayOrder ||
-    Number(formData.displayOrder) <= 0
-) {
-
-    alert("Display Order must be greater than 0.");
-
-    return;
-
-}
 
     onSave({
 
@@ -110,8 +127,6 @@ if (
         isActive: formData.isActive
 
     });
-
-
 
     };
 
@@ -150,10 +165,13 @@ if (
 
         <TextField
             fullWidth
+            required
             label="Category Name"
             name="categoryName"
             value={formData.categoryName}
             onChange={handleChange}
+            error={Boolean(errors.categoryName)}
+            helperText={errors.categoryName}
         />
 
     </Grid>
@@ -176,19 +194,21 @@ if (
 
         <TextField
             fullWidth
+            required
             type="number"
             label="Display Order"
             name="displayOrder"
             value={formData.displayOrder}
             onChange={handleChange}
+            error={Boolean(errors.displayOrder)}
+            helperText={errors.displayOrder}
         />
 
     </Grid>
 
     <Grid
         size={{ xs: 12, md: 6 }}
-        display="flex"
-        alignItems="center"
+        sx={{ display: "flex", alignItems: "center" }}
     >
 
         <FormControlLabel

@@ -1,70 +1,49 @@
 import {
     AppBar,
     Avatar,
-    Badge,
     Box,
     Button,
+    Chip,
     IconButton,
-    InputBase,
-    Paper,
     Toolbar,
     Typography
 } from "@mui/material";
 
-import {
-    useLocation,
-    useNavigate
-} from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
+import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import NotificationsNoneRoundedIcon from "@mui/icons-material/NotificationsNoneRounded";
-import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import StoreRoundedIcon from "@mui/icons-material/StoreRounded";
+import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
 
-function Header() {
+import { getStoredAdmin, isOwner } from "../../utils/adminAuth";
+
+function Header({ onMenuClick }) {
 
     const navigate = useNavigate();
-
     const location = useLocation();
-
-    const admin = JSON.parse(
-
-        localStorage.getItem("admin")
-
-    );
+    const admin = getStoredAdmin();
 
     const pageTitle = {
-
-        "/dashboard": "Dashboard",
-
-        "/category": "Categories",
-
-        "/menu": "Menu",
-
         "/orders": "Orders",
-
+        "/dashboard": "Dashboard",
+        "/branches": "Branches",
+        "/admins": "Admins",
+        "/tables": "Tables",
+        "/category": "Categories",
+        "/menu": "Menu",
+        "/dine-in": "Dine In",
         "/customers": "Customers",
-
         "/reports": "Reports"
-
     };
 
-const handleLogout = () => {
+    const handleLogout = () => {
 
-    localStorage.clear();
+        localStorage.clear();
+        navigate("/login", { replace: true });
 
-    navigate(
-
-        "/login",
-
-        {
-
-            replace: true
-
-        }
-
-    );
-
-};
+    };
 
     return (
 
@@ -73,150 +52,67 @@ const handleLogout = () => {
             elevation={0}
             sx={{
                 bgcolor: "#FFFFFF",
-                borderBottom: "1px solid #E5E7EB"
+                borderBottom: "1px solid #E5E7EB",
+                flexShrink: 0
             }}
         >
 
-            <Toolbar
-                sx={{
-                    height: 72,
-                    justifyContent: "space-between"
-                }}
-            >
+            <Toolbar sx={{ height: { xs: 56, md: 72 }, justifyContent: "space-between", gap: 1 }}>
 
-                <Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
 
-                    <Typography
-                        variant="h5"
-                        fontWeight={700}
+                    <IconButton
+                        onClick={onMenuClick}
+                        sx={{ display: { xs: "inline-flex", md: "none" }, flexShrink: 0 }}
                     >
-
-                        {
-
-                            pageTitle[location.pathname]
-
-                            ||
-
-                            "Dashboard"
-
-                        }
-
-                    </Typography>
-
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                    >
-
-                        Welcome to ChaiChakhnaCompany Admin Panel
-
-                    </Typography>
-
-                </Box>
-
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2
-                    }}
-                >
-
-                    <Paper
-                        elevation={0}
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            px: 2,
-                            py: 0.5,
-                            width: 300,
-                            border: "1px solid #E5E7EB",
-                            borderRadius: 3
-                        }}
-                    >
-
-                        <SearchRoundedIcon
-                            sx={{
-                                color: "#9CA3AF",
-                                mr: 1
-                            }}
-                        />
-
-                        <InputBase
-                            placeholder="Search..."
-                            sx={{
-                                flex: 1
-                            }}
-                        />
-
-                    </Paper>
-
-                    <IconButton>
-
-                        <Badge
-                            badgeContent={4}
-                            color="primary"
-                        >
-
-                            <NotificationsNoneRoundedIcon />
-
-                        </Badge>
-
+                        <MenuRoundedIcon />
                     </IconButton>
 
-                    <Avatar
-                        sx={{
-                            bgcolor: "#F58220",
-                            width: 42,
-                            height: 42
-                        }}
-                    >
+                    <Box sx={{ minWidth: 0 }}>
 
-                        {
-
-                            admin?.FullName?.charAt(0)
-
-                            ||
-
-                            "A"
-
-                        }
-
-                    </Avatar>
-
-                    <Box>
-
-                        <Typography
-                            fontWeight={700}
-                        >
-
-                            {
-
-                                admin?.FullName
-
-                                ||
-
-                                "Administrator"
-
-                            }
-
+                        <Typography variant="h5" fontWeight={700} noWrap>
+                            {pageTitle[location.pathname] || "Dashboard"}
                         </Typography>
 
                         <Typography
                             variant="body2"
                             color="text.secondary"
+                            noWrap
+                            sx={{ display: { xs: "none", sm: "block" } }}
                         >
+                            Welcome to ChaiChakhnaCompany Admin Panel
+                        </Typography>
 
-                            {
+                    </Box>
 
-                                admin?.Email
+                </Box>
 
-                                ||
+                <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, md: 2 } }}>
 
-                                ""
+                    <Chip
+                        icon={isOwner(admin) ? <PublicRoundedIcon /> : <StoreRoundedIcon />}
+                        label={isOwner(admin) ? "All Branches (Owner)" : admin?.BranchName || "Unassigned Branch"}
+                        color={isOwner(admin) ? "default" : "primary"}
+                        variant={isOwner(admin) ? "outlined" : "filled"}
+                        sx={{ display: { xs: "none", sm: "flex" } }}
+                    />
 
-                            }
+                    <IconButton sx={{ display: { xs: "none", sm: "inline-flex" } }}>
+                        <NotificationsNoneRoundedIcon />
+                    </IconButton>
 
+                    <Avatar sx={{ bgcolor: "#F58220", width: { xs: 34, md: 42 }, height: { xs: 34, md: 42 } }}>
+                        {admin?.FullName?.charAt(0) || "A"}
+                    </Avatar>
+
+                    <Box sx={{ display: { xs: "none", md: "block" } }}>
+
+                        <Typography fontWeight={700} noWrap>
+                            {admin?.FullName || "Administrator"}
+                        </Typography>
+
+                        <Typography variant="body2" color="text.secondary" noWrap>
+                            {admin?.Email || ""}
                         </Typography>
 
                     </Box>
@@ -226,11 +122,18 @@ const handleLogout = () => {
                         color="error"
                         startIcon={<LogoutRoundedIcon />}
                         onClick={handleLogout}
+                        sx={{ display: { xs: "none", sm: "inline-flex" } }}
                     >
-
                         Logout
-
                     </Button>
+
+                    <IconButton
+                        color="error"
+                        onClick={handleLogout}
+                        sx={{ display: { xs: "inline-flex", sm: "none" } }}
+                    >
+                        <LogoutRoundedIcon />
+                    </IconButton>
 
                 </Box>
 

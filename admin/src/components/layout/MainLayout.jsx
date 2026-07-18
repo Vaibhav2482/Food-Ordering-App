@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 
@@ -6,34 +7,39 @@ import Header from "./Header";
 
 function MainLayout() {
 
+    const [mobileOpen, setMobileOpen] = useState(false);
+
     return (
 
         <Box
             sx={{
                 display: "flex",
-                minHeight: "100vh",
+                height: "100vh",
                 bgcolor: "#F5F6FA"
             }}
         >
 
-            <Sidebar />
+            <Sidebar mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
 
             <Box
                 sx={{
                     flex: 1,
                     display: "flex",
                     flexDirection: "column",
-                    bgcolor: "#F5F6FA"
+                    bgcolor: "#F5F6FA",
+                    minWidth: 0,
+                    height: "100vh"
                 }}
             >
 
-                <Header />
+                <Header onMenuClick={() => setMobileOpen(true)} />
 
                 <Box
                     sx={{
                         flex: 1,
-                        p: 3,
-                        bgcolor: "#F5F6FA"
+                        p: { xs: 2, md: 3 },
+                        bgcolor: "#F5F6FA",
+                        overflowY: "auto"
                     }}
                 >
 

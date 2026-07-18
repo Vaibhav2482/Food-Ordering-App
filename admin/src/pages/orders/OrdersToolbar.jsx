@@ -13,7 +13,11 @@ function OrdersToolbar({
     searchText,
     setSearchText,
     selectedStatus,
-    setSelectedStatus
+    setSelectedStatus,
+    branches,
+    selectedBranchId,
+    setSelectedBranchId,
+    ownerMode
 
 }) {
 
@@ -44,6 +48,50 @@ function OrdersToolbar({
                     flexWrap: "wrap"
                 }}
             >
+
+                {ownerMode && (
+
+                    <FormControl
+                        size="small"
+                        sx={{
+                            minWidth: 180
+                        }}
+                    >
+
+                        <InputLabel>
+                            Branch
+                        </InputLabel>
+
+                        <Select
+                            value={selectedBranchId}
+                            label="Branch"
+                            onChange={(event) =>
+                                setSelectedBranchId(event.target.value)
+                            }
+                        >
+
+                            <MenuItem value="all">
+                                All Branches
+                            </MenuItem>
+
+                            {
+                                branches.map(branch => (
+
+                                    <MenuItem
+                                        key={branch.BranchId}
+                                        value={branch.BranchId}
+                                    >
+                                        {branch.BranchName}
+                                    </MenuItem>
+
+                                ))
+                            }
+
+                        </Select>
+
+                    </FormControl>
+
+                )}
 
                 <TextField
                     size="small"

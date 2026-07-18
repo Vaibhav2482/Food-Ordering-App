@@ -24,7 +24,9 @@ function ReportsToolbar({
     toDate,
     setToDate,
 
-    onSearch
+    onSearch,
+    onExport,
+    onPrint
 
 }) {
 
@@ -58,11 +60,7 @@ function ReportsToolbar({
 
             >
 
-                <Grid
-                    item
-                    xs={12}
-                    md={3}
-                >
+                <Grid size={{ xs: 12, md: 3 }}>
 
                     <FormControl fullWidth>
 
@@ -124,11 +122,7 @@ function ReportsToolbar({
 
                     <>
 
-                        <Grid
-                            item
-                            xs={12}
-                            md={3}
-                        >
+                        <Grid size={{ xs: 12, md: 3 }}>
 
                             <TextField
 
@@ -156,11 +150,7 @@ function ReportsToolbar({
 
                         </Grid>
 
-                        <Grid
-                            item
-                            xs={12}
-                            md={3}
-                        >
+                        <Grid size={{ xs: 12, md: 3 }}>
 
                             <TextField
 
@@ -188,20 +178,12 @@ function ReportsToolbar({
 
                         </Grid>
 
-                        <Grid
-                            item
-                            xs={12}
-                            md={3}
-                        >
+                        <Grid size={{ xs: 12, md: 3 }}>
 
                             <Box
-
                                 display="flex"
-
                                 height="100%"
-
                                 alignItems="center"
-
                             >
 
                                 <Button
@@ -222,50 +204,6 @@ function ReportsToolbar({
 
                                 </Button>
 
-                                <Grid
-    item
-    xs={12}
-    md={2}
->
-
-    <Button
-
-        fullWidth
-
-        variant="outlined"
-
-        startIcon={<DownloadRoundedIcon />}
-
-    >
-
-        Export
-
-    </Button>
-
-</Grid>
-
-<Grid
-    item
-    xs={12}
-    md={2}
->
-
-    <Button
-
-        fullWidth
-
-        variant="outlined"
-
-        startIcon={<PrintRoundedIcon />}
-
-    >
-
-        Print
-
-    </Button>
-
-</Grid>
-
                             </Box>
 
                         </Grid>
@@ -273,6 +211,46 @@ function ReportsToolbar({
                     </>
 
                 }
+
+                <Grid size={{ xs: 6, md: 2 }}>
+
+                    <Button
+
+                        fullWidth
+
+                        variant="outlined"
+
+                        startIcon={<DownloadRoundedIcon />}
+
+                        onClick={onExport}
+
+                    >
+
+                        Export
+
+                    </Button>
+
+                </Grid>
+
+                <Grid size={{ xs: 6, md: 2 }}>
+
+                    <Button
+
+                        fullWidth
+
+                        variant="outlined"
+
+                        startIcon={<PrintRoundedIcon />}
+
+                        onClick={onPrint}
+
+                    >
+
+                        Print
+
+                    </Button>
+
+                </Grid>
 
             </Grid>
 

@@ -1,6 +1,5 @@
 import {
     Box,
-    Chip,
     CircularProgress,
     IconButton,
     Paper,
@@ -15,58 +14,32 @@ import {
 
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
+import QuickStatusControl from "./QuickStatusControl";
+
 function OrdersTable({
 
     orders,
     loading,
-    onView
+    onView,
+    onStatusChange,
+    onCancelOrder
 
 }) {
-
-    const getStatusColor = (status) => {
-
-        switch (status) {
-
-            case "Pending":
-                return "warning";
-
-            case "Accepted":
-                return "info";
-
-            case "Preparing":
-                return "primary";
-
-            case "Ready":
-                return "secondary";
-
-            case "Out For Delivery":
-                return "info";
-
-            case "Delivered":
-                return "success";
-
-            case "Cancelled":
-                return "error";
-
-            default:
-                return "default";
-
-        }
-
-    };
 
     if (loading) {
 
         return (
 
             <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                sx={{ height: 300 }}
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: 350
+                }}
             >
 
-                <CircularProgress />
+                <CircularProgress color="warning" />
 
             </Box>
 
@@ -76,7 +49,14 @@ function OrdersTable({
 
     return (
 
-        <TableContainer component={Paper}>
+        <TableContainer
+            component={Paper}
+            sx={{
+                mt: 3,
+                borderRadius: 4,
+                boxShadow: "0 8px 24px rgba(0,0,0,.08)"
+            }}
+        >
 
             <Table>
 
@@ -90,6 +70,10 @@ function OrdersTable({
 
                         <TableCell>
                             Customer
+                        </TableCell>
+
+                        <TableCell>
+                            Branch
                         </TableCell>
 
                         <TableCell>
@@ -129,15 +113,17 @@ function OrdersTable({
                             <TableRow>
 
                                 <TableCell
-                                    colSpan={8}
+                                    colSpan={9}
                                     align="center"
+                                    sx={{ py: 8 }}
                                 >
 
                                     <Typography
-                                        sx={{ py: 5 }}
+                                        variant="h6"
+                                        color="text.secondary"
                                     >
 
-                                        No Orders Found
+                                        No orders found.
 
                                     </Typography>
 
@@ -168,6 +154,12 @@ function OrdersTable({
 
                                     <TableCell>
 
+                                        {order.BranchName}
+
+                                    </TableCell>
+
+                                    <TableCell>
+
                                         {order.PaymentMethod}
 
                                     </TableCell>
@@ -175,6 +167,8 @@ function OrdersTable({
                                     <TableCell>
 
                                         {order.DeliveryType}
+                                        {order.DeliveryType === "Dine In" && order.TableNumber &&
+                                            ` (T-${order.TableNumber})`}
 
                                     </TableCell>
 
@@ -186,10 +180,10 @@ function OrdersTable({
 
                                     <TableCell>
 
-                                        <Chip
-                                            label={order.OrderStatus}
-                                            color={getStatusColor(order.OrderStatus)}
-                                            size="small"
+                                        <QuickStatusControl
+                                            order={order}
+                                            onStatusChange={onStatusChange}
+                                            onCancelOrder={onCancelOrder}
                                         />
 
                                     </TableCell>

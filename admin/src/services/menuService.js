@@ -1,10 +1,10 @@
-import axios from "axios";
+import axiosClient from "../api/axiosClient";
 
-const API_URL = "http://localhost:5000/api/v1/menu";
+const API_URL = "/menu";
 
-export const getAllMenu = async () => {
+export const getAllMenu = async (branchId) => {
 
-    const response = await axios.get(API_URL);
+    const response = await axiosClient.get(API_URL, { params: { branchId } });
 
     return response.data;
 
@@ -12,12 +12,9 @@ export const getAllMenu = async () => {
 
 export const createMenu = async (menuItem) => {
 
-    const response = await axios.post(
-
-        "http://localhost:5000/api/v1/menu",
-
+    const response = await axiosClient.post(
+        API_URL,
         menuItem
-
     );
 
     return response.data;
@@ -26,24 +23,9 @@ export const createMenu = async (menuItem) => {
 
 export const updateMenu = async (menuItemId, menuItem) => {
 
-    const response = await axios.put(
-
-        `http://localhost:5000/api/v1/menu/${menuItemId}`,
-
+    const response = await axiosClient.put(
+        `${API_URL}/${menuItemId}`,
         menuItem
-
-    );
-
-    return response.data;
-
-};
-
-export const deleteMenu = async (menuItemId) => {
-
-    const response = await axios.delete(
-
-        `http://localhost:5000/api/v1/menu/${menuItemId}`
-
     );
 
     return response.data;

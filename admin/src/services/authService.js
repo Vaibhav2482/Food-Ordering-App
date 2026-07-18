@@ -1,22 +1,11 @@
-import axios from "axios";
+import axiosClient from "../api/axiosClient";
 
-const API_URL =
-    "http://localhost:5000/api/v1/auth";
+export const adminLogin = async (credentials) => {
 
-export const adminLogin = async (
-
-    credentials
-
-) => {
-
-    const response =
-        await axios.post(
-
-            `${API_URL}/admin/login`,
-
-            credentials
-
-        );
+    const response = await axiosClient.post(
+        "/auth/admin/login",
+        credentials
+    );
 
     return response.data;
 

@@ -79,6 +79,8 @@ function OrderStatusChart({
 
     ];
 
+    const total = data.reduce((sum, item) => sum + item.value, 0);
+
     return (
 
         <Paper
@@ -87,13 +89,13 @@ function OrderStatusChart({
 
             sx={{
 
-                borderRadius: 4,
+                borderRadius: 3,
 
                 border: "1px solid #ECECEC",
 
-                p: 3,
+                p: 2.5,
 
-                height: 430,
+                height: 360,
 
                 display: "flex",
 
@@ -105,11 +107,11 @@ function OrderStatusChart({
 
             <Typography
 
-                variant="h6"
+                variant="subtitle1"
 
                 fontWeight={700}
 
-                mb={0.5}
+                mb={0.25}
 
             >
 
@@ -121,9 +123,9 @@ function OrderStatusChart({
 
                 color="text.secondary"
 
-                fontSize={13}
+                fontSize={12.5}
 
-                mb={2}
+                mb={1.5}
 
             >
 
@@ -141,15 +143,15 @@ function OrderStatusChart({
 
                         variant="circular"
 
-                        width={180}
+                        width={140}
 
-                        height={180}
+                        height={140}
 
                         sx={{
 
                             mx: "auto",
 
-                            my: 2
+                            my: 1
 
                         }}
 
@@ -157,21 +159,44 @@ function OrderStatusChart({
 
                 )
 
-                :
+                : total === 0 ?
 
+                (
+
+                    <Box
+                        sx={{
+                            height: 140,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+                    >
+
+                        <Typography color="text.secondary">
+                            No orders yet.
+                        </Typography>
+
+                    </Box>
+
+                )
+                :
                 (
 
                     <Box
 
                         sx={{
 
-                            height: 190
+                            height: 140,
+
+                            minHeight: 140,
+
+                            flexShrink: 0
 
                         }}
 
                     >
 
-                        <ResponsiveContainer>
+                        <ResponsiveContainer width="100%" height="100%">
 
                             <PieChart>
 
@@ -179,9 +204,9 @@ function OrderStatusChart({
 
                                     data={data}
 
-                                    innerRadius={55}
+                                    innerRadius={42}
 
-                                    outerRadius={85}
+                                    outerRadius={65}
 
                                     paddingAngle={3}
 
@@ -223,9 +248,9 @@ function OrderStatusChart({
 
                 container
 
-                spacing={1}
+                spacing={0.75}
 
-                mt={2}
+                mt={1}
 
             >
 
@@ -235,9 +260,7 @@ function OrderStatusChart({
 
                         <Grid
 
-                            item
-
-                            xs={6}
+                            size={{ xs: 6 }}
 
                             key={item.name}
 
@@ -255,11 +278,11 @@ function OrderStatusChart({
 
                                     bgcolor: "#FAFAFA",
 
-                                    borderRadius: 2,
+                                    borderRadius: 1.5,
 
-                                    px: 1.5,
+                                    px: 1,
 
-                                    py: 1
+                                    py: 0.5
 
                                 }}
 
@@ -267,9 +290,11 @@ function OrderStatusChart({
 
                                 <Typography
 
-                                    fontSize={12}
+                                    fontSize={11}
 
                                     fontWeight={600}
+
+                                    sx={{ lineHeight: 1.2, mr: 0.5 }}
 
                                 >
 
@@ -291,7 +316,15 @@ function OrderStatusChart({
 
                                         fontWeight: 700,
 
-                                        minWidth: 36
+                                        flexShrink: 0,
+
+                                        minWidth: 30,
+
+                                        height: 20,
+
+                                        fontSize: 11,
+
+                                        ml: 0.5
 
                                     }}
 

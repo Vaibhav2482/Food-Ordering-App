@@ -1,11 +1,22 @@
-import { Box, Grid, Typography } from "@mui/material";
+import {
+    Box,
+    FormControl,
+    Grid,
+    IconButton,
+    MenuItem,
+    Select,
+    Tooltip,
+    Typography
+} from "@mui/material";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import CurrencyRupeeRoundedIcon from "@mui/icons-material/CurrencyRupeeRounded";
 import ShoppingBagRoundedIcon from "@mui/icons-material/ShoppingBagRounded";
 import PeopleRoundedIcon from "@mui/icons-material/PeopleRounded";
 import RestaurantMenuRoundedIcon from "@mui/icons-material/RestaurantMenuRounded";
+import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 
 import StatCard from "./StatCard";
 import SalesChart from "./SalesChart";
@@ -19,8 +30,15 @@ import {
     getTopSellingItems,
     getSalesLast7Days
 } from "../../services/dashboardService";
+import { getAllBranches } from "../../services/branchService";
+import { getStoredAdmin, isOwner } from "../../utils/adminAuth";
 
 function Dashboard() {
+
+    const navigate = useNavigate();
+
+    const admin = getStoredAdmin();
+    const ownerMode = isOwner(admin);
 
     const [summary, setSummary] = useState(null);
 
@@ -30,19 +48,53 @@ function Dashboard() {
 
     const [salesData, setSalesData] = useState([]);
 
+    const [branches, setBranches] = useState([]);
+
+    const [selectedBranchId, setSelectedBranchId] = useState(ownerMode ? "all" : admin.BranchId);
+
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+
+        if (ownerMode) {
+            loadBranches();
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
 
         loadDashboard();
 
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedBranchId]);
+
+    const loadBranches = async () => {
+
+        try {
+
+            const response = await getAllBranches();
+
+            if (response.success) {
+                setBranches(response.data);
+            }
+
+        } catch {
+
+            toast.error("Failed to load branches.");
+
+        }
+
+    };
 
     const loadDashboard = async () => {
 
         try {
 
             setLoading(true);
+
+            const branchId = selectedBranchId === "all" ? undefined : selectedBranchId;
 
             const [
 
@@ -56,13 +108,13 @@ function Dashboard() {
 
             ] = await Promise.all([
 
-                getDashboardSummary(),
+                getDashboardSummary(branchId),
 
-                getRecentOrders(),
+                getRecentOrders(branchId),
 
-                getTopSellingItems(),
+                getTopSellingItems(branchId),
 
-                getSalesLast7Days()
+                getSalesLast7Days(branchId)
 
             ]);
 
@@ -118,37 +170,90 @@ return (
     >
 
         <Box
-            mb={4}
+            mb={2.5}
+            sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: { xs: "flex-start", sm: "flex-start" },
+                flexWrap: "wrap",
+                gap: 1.5
+            }}
         >
 
-            <Typography
-                variant="h4"
-                fontWeight={800}
-            >
-                Dashboard
-            </Typography>
+            <Box>
 
-            <Typography
-                color="text.secondary"
-                mt={0.5}
-            >
-                Welcome to ChaiChakhna Restaurant Management
-            </Typography>
+                <Typography
+                    variant="h5"
+                    fontWeight={800}
+                >
+                    Dashboard
+                </Typography>
+
+                <Typography
+                    color="text.secondary"
+                    variant="body2"
+                    mt={0.25}
+                >
+                    Welcome to ChaiChakhna Restaurant Management
+                </Typography>
+
+            </Box>
+
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+
+                {ownerMode && (
+
+                    <FormControl size="small" sx={{ minWidth: 180 }}>
+
+                        <Select
+                            value={selectedBranchId}
+                            onChange={(event) => setSelectedBranchId(event.target.value)}
+                        >
+
+                            <MenuItem value="all">
+                                All Branches
+                            </MenuItem>
+
+                            {
+                                branches.map(branch => (
+
+                                    <MenuItem
+                                        key={branch.BranchId}
+                                        value={branch.BranchId}
+                                    >
+                                        {branch.BranchName}
+                                    </MenuItem>
+
+                                ))
+                            }
+
+                        </Select>
+
+                    </FormControl>
+
+                )}
+
+                <Tooltip title="Refresh">
+
+                    <IconButton size="small" onClick={loadDashboard} disabled={loading}>
+                        <RefreshRoundedIcon fontSize="small" />
+                    </IconButton>
+
+                </Tooltip>
+
+            </Box>
 
         </Box>
 
         <Grid
             container
-            spacing={3}
+            spacing={2}
         >
 
             {/* Top Cards */}
 
             <Grid
-                item
-                xs={12}
-                sm={6}
-                xl={3}
+                size={{ xs: 12, sm: 6, xl: 3 }}
             >
 
                 <StatCard
@@ -158,15 +263,13 @@ return (
                     color="#22C55E"
                     icon={<CurrencyRupeeRoundedIcon />}
                     loading={loading}
+                    onClick={() => navigate("/reports")}
                 />
 
             </Grid>
 
             <Grid
-                item
-                xs={12}
-                sm={6}
-                xl={3}
+                size={{ xs: 12, sm: 6, xl: 3 }}
             >
 
                 <StatCard
@@ -176,15 +279,13 @@ return (
                     color="#F58220"
                     icon={<ShoppingBagRoundedIcon />}
                     loading={loading}
+                    onClick={() => navigate("/orders")}
                 />
 
             </Grid>
 
             <Grid
-                item
-                xs={12}
-                sm={6}
-                xl={3}
+                size={{ xs: 12, sm: 6, xl: 3 }}
             >
 
                 <StatCard
@@ -194,15 +295,13 @@ return (
                     color="#3B82F6"
                     icon={<PeopleRoundedIcon />}
                     loading={loading}
+                    onClick={() => navigate("/customers")}
                 />
 
             </Grid>
 
             <Grid
-                item
-                xs={12}
-                sm={6}
-                xl={3}
+                size={{ xs: 12, sm: 6, xl: 3 }}
             >
 
                 <StatCard
@@ -212,41 +311,40 @@ return (
                     color="#0F766E"
                     icon={<RestaurantMenuRoundedIcon />}
                     loading={loading}
+                    onClick={() => navigate("/menu")}
                 />
 
             </Grid>
 
             {/* Charts */}
 
-<Grid item xs={12} lg={8}>
+<Grid size={{ xs: 12, lg: 8 }}>
     <SalesChart
         salesData={salesData}
         loading={loading}
     />
 </Grid>
 
-<Grid item xs={12} lg={4}>
+<Grid size={{ xs: 12, lg: 4 }}>
     <TopSellingItems
         items={topSellingItems}
         loading={loading}
     />
 </Grid>
 
-<Grid item xs={12} lg={8}>
+<Grid size={{ xs: 12, lg: 8 }}>
     <RecentOrders
         orders={recentOrders}
         loading={loading}
     />
 </Grid>
 
-<Grid item xs={12} lg={4}>
+<Grid size={{ xs: 12, lg: 4 }}>
     <OrderStatusChart
         summary={summary}
         loading={loading}
     />
 </Grid>
-
-
 
         </Grid>
 

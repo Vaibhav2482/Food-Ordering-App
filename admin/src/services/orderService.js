@@ -1,10 +1,26 @@
-import axios from "axios";
+import axiosClient from "../api/axiosClient";
 
-const API_URL = "http://localhost:5000/api/v1/orders";
+const API_URL = "/orders";
 
-export const getAllOrders = async () => {
+export const getAllOrders = async (branchId) => {
 
-    const response = await axios.get(API_URL);
+    const response = await axiosClient.get(API_URL, { params: { branchId } });
+
+    return response.data;
+
+};
+
+export const createOrder = async (order) => {
+
+    const response = await axiosClient.post(API_URL, order);
+
+    return response.data;
+
+};
+
+export const getActiveTableOrders = async (branchId) => {
+
+    const response = await axiosClient.get(`${API_URL}/active-by-table`, { params: { branchId } });
 
     return response.data;
 
@@ -12,35 +28,39 @@ export const getAllOrders = async () => {
 
 export const getOrderById = async (orderId) => {
 
-    const response = await axios.get(
-
+    const response = await axiosClient.get(
         `${API_URL}/${orderId}`
-
     );
 
     return response.data;
 
 };
 
-export const updateOrderStatus = async (
+export const updateOrderStatus = async (orderId, orderStatus) => {
 
-    orderId,
-
-    orderStatus
-
-) => {
-
-    const response = await axios.put(
-
+    const response = await axiosClient.put(
         `${API_URL}/${orderId}/status`,
-
-        {
-
-            orderStatus
-
-        }
-
+        { orderStatus }
     );
+
+    return response.data;
+
+};
+
+export const updateOrderItems = async (orderId, items) => {
+
+    const response = await axiosClient.put(
+        `${API_URL}/${orderId}/items`,
+        { items }
+    );
+
+    return response.data;
+
+};
+
+export const cancelOrder = async (orderId) => {
+
+    const response = await axiosClient.put(`${API_URL}/${orderId}/cancel`);
 
     return response.data;
 

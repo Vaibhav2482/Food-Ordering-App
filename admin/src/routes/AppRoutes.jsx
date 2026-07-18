@@ -11,11 +11,27 @@ import MainLayout from "../components/layout/MainLayout";
 import Login from "../pages/login/Login";
 
 import Dashboard from "../components/dashboard/Dashboard";
+import Branches from "../pages/branches/Branches";
+import Admins from "../pages/admins/Admins";
+import Tables from "../pages/tables/Tables";
 import Category from "../pages/category/Category";
 import Menu from "../pages/menu/Menu";
 import Orders from "../pages/orders/Orders";
+import DineIn from "../pages/dinein/DineIn";
+import OrderBill from "../pages/orders/OrderBill";
 import Customers from "../pages/customers/Customers";
 import Reports from "../pages/reports/Reports";
+
+function isAuthenticated() {
+
+    try {
+        const admin = JSON.parse(localStorage.getItem("admin"));
+        return Boolean(admin?.AdminId && admin?.token);
+    } catch {
+        return false;
+    }
+
+}
 
 function AppRoutes() {
 
@@ -45,7 +61,7 @@ function AppRoutes() {
                         index
                         element={
                             <Navigate
-                                to="/dashboard"
+                                to="/orders"
                                 replace
                             />
                         }
@@ -54,6 +70,21 @@ function AppRoutes() {
                     <Route
                         path="dashboard"
                         element={<Dashboard />}
+                    />
+
+                    <Route
+                        path="branches"
+                        element={<Branches />}
+                    />
+
+                    <Route
+                        path="admins"
+                        element={<Admins />}
+                    />
+
+                    <Route
+                        path="tables"
+                        element={<Tables />}
                     />
 
                     <Route
@@ -72,6 +103,16 @@ function AppRoutes() {
                     />
 
                     <Route
+                        path="dine-in"
+                        element={<DineIn />}
+                    />
+
+                    <Route
+                        path="orders/:id/bill"
+                        element={<OrderBill />}
+                    />
+
+                    <Route
                         path="customers"
                         element={<Customers />}
                     />
@@ -87,7 +128,7 @@ function AppRoutes() {
                     path="*"
                     element={
                         <Navigate
-                            to="/login"
+                            to={isAuthenticated() ? "/orders" : "/login"}
                             replace
                         />
                     }

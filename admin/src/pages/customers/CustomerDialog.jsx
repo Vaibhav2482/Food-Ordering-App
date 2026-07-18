@@ -10,6 +10,8 @@ import {
 
 import { useEffect, useState } from "react";
 
+const emptyErrors = { fullName: "", email: "", phone: "" };
+
 function CustomerDialog({
 
     open,
@@ -28,6 +30,8 @@ function CustomerDialog({
 
     });
 
+    const [errors, setErrors] = useState(emptyErrors);
+
     useEffect(() => {
 
         if (customer) {
@@ -42,7 +46,9 @@ function CustomerDialog({
 
         }
 
-    }, [customer]);
+        setErrors(emptyErrors);
+
+    }, [customer, open]);
 
     const handleChange = (event) => {
 
@@ -60,23 +66,39 @@ function CustomerDialog({
 
         }));
 
+        if (errors[name]) {
+
+            setErrors((prev) => ({ ...prev, [name]: "" }));
+
+        }
+
+    };
+
+    const validate = () => {
+
+        const nextErrors = { ...emptyErrors };
+
+        if (formData.fullName.trim() === "") {
+            nextErrors.fullName = "Full Name is required.";
+        }
+
+        if (formData.email.trim() === "") {
+            nextErrors.email = "Email is required.";
+        }
+
+        if (formData.phone.trim() === "") {
+            nextErrors.phone = "Phone is required.";
+        }
+
+        setErrors(nextErrors);
+
+        return Object.values(nextErrors).every((error) => error === "");
+
     };
 
     const handleSubmit = () => {
 
-        if (formData.fullName.trim() === "") {
-
-            return;
-
-        }
-
-        if (formData.email.trim() === "") {
-
-            return;
-
-        }
-
-        if (formData.phone.trim() === "") {
+        if (!validate()) {
 
             return;
 
@@ -121,11 +143,14 @@ function CustomerDialog({
 
                         <TextField
                             fullWidth
+                            required={isEditMode}
                             disabled={!isEditMode}
                             label="Full Name"
                             name="fullName"
                             value={formData.fullName}
                             onChange={handleChange}
+                            error={Boolean(errors.fullName)}
+                            helperText={errors.fullName}
                         />
 
                     </Grid>
@@ -134,11 +159,14 @@ function CustomerDialog({
 
                         <TextField
                             fullWidth
+                            required={isEditMode}
                             disabled={!isEditMode}
                             label="Email"
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
+                            error={Boolean(errors.email)}
+                            helperText={errors.email}
                         />
 
                     </Grid>
@@ -147,11 +175,14 @@ function CustomerDialog({
 
                         <TextField
                             fullWidth
+                            required={isEditMode}
                             disabled={!isEditMode}
                             label="Phone"
                             name="phone"
                             value={formData.phone}
                             onChange={handleChange}
+                            error={Boolean(errors.phone)}
+                            helperText={errors.phone}
                         />
 
                     </Grid>

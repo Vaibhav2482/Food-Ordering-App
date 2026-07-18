@@ -18,6 +18,10 @@ function MenuToolbar({
     selectedCategory,
     setSelectedCategory,
     categories,
+    branches,
+    selectedBranchId,
+    setSelectedBranchId,
+    ownerMode = true,
     onAddClick
 
 }) {
@@ -50,6 +54,44 @@ function MenuToolbar({
                     alignItems: "center"
                 }}
             >
+
+                {ownerMode && (
+
+                    <FormControl
+                        size="small"
+                        sx={{ minWidth: 200 }}
+                    >
+
+                        <InputLabel>
+                            Branch
+                        </InputLabel>
+
+                        <Select
+                            value={selectedBranchId ?? ""}
+                            label="Branch"
+                            onChange={(event) =>
+                                setSelectedBranchId(event.target.value)
+                            }
+                        >
+
+                            {
+                                branches.map(branch => (
+
+                                    <MenuItem
+                                        key={branch.BranchId}
+                                        value={branch.BranchId}
+                                    >
+                                        {branch.BranchName}
+                                    </MenuItem>
+
+                                ))
+                            }
+
+                        </Select>
+
+                    </FormControl>
+
+                )}
 
                 <TextField
                     size="small"

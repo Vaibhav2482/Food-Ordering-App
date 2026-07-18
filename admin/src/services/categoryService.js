@@ -1,10 +1,10 @@
-import axios from "axios";
+import axiosClient from "../api/axiosClient";
 
-const API_URL = "http://localhost:5000/api/v1/categories";
+const API_URL = "/categories";
 
 export const getAllCategories = async () => {
 
-    const response = await axios.get(API_URL);
+    const response = await axiosClient.get(API_URL);
 
     return response.data;
 
@@ -12,12 +12,9 @@ export const getAllCategories = async () => {
 
 export const createCategory = async (category) => {
 
-    const response = await axios.post(
-
+    const response = await axiosClient.post(
         API_URL,
-
         category
-
     );
 
     return response.data;
@@ -26,24 +23,9 @@ export const createCategory = async (category) => {
 
 export const updateCategory = async (categoryId, category) => {
 
-    const response = await axios.put(
-
+    const response = await axiosClient.put(
         `${API_URL}/${categoryId}`,
-
         category
-
-    );
-
-    return response.data;
-
-};
-
-export const deleteCategory = async (categoryId) => {
-
-    const response = await axios.delete(
-
-        `${API_URL}/${categoryId}`
-
     );
 
     return response.data;

@@ -127,6 +127,48 @@ function Reports() {
 
   };
 
+  const handleExport = () => {
+
+    if (reports.length === 0) {
+
+      toast.error("No data to export.");
+
+      return;
+
+    }
+
+    const headers = ["Date", "Total Orders", "Total Revenue", "Delivered Orders", "Cancelled Orders"];
+
+    const rows = reports.map((row) => [
+      row.SalesDate,
+      row.TotalOrders,
+      row.TotalRevenue,
+      row.DeliveredOrders,
+      row.CancelledOrders
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((value) => `"${value ?? ""}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `sales-report-${reportType}-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+
+    URL.revokeObjectURL(url);
+
+  };
+
+  const handlePrint = () => {
+
+    window.print();
+
+  };
+
   const handleCustomSearch =
     async () => {
 
@@ -208,7 +250,7 @@ function Reports() {
         mb={4}
       >
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
 
           <StatCard
             title="Revenue"
@@ -220,7 +262,7 @@ function Reports() {
 
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
 
           <StatCard
             title="Orders"
@@ -232,7 +274,7 @@ function Reports() {
 
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
 
           <StatCard
             title="Delivered"
@@ -244,7 +286,7 @@ function Reports() {
 
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
 
           <StatCard
             title="Cancelled"
@@ -274,6 +316,10 @@ function Reports() {
         onSearch={
           handleCustomSearch
         }
+
+        onExport={handleExport}
+
+        onPrint={handlePrint}
 
       />
 

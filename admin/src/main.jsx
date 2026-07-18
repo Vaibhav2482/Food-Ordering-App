@@ -15,7 +15,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <CssBaseline />
 
             <Toaster
-                position="top-right"
+                position="top-center"
                 toastOptions={{
                     duration: 2500
                 }}

@@ -36,6 +36,15 @@ export const createRazorpayOrder = async (orderId) => {
 
     const amountInPaise = Math.round(Number(order.TotalAmount) * 100);
 
+    // Razorpay rejects orders under ₹1 (100 paise); fail with a clear
+    // message instead of surfacing their generic API error.
+    if (amountInPaise < 100) {
+        return {
+            success: false,
+            message: "Order amount must be at least ₹1 to pay online."
+        };
+    }
+
     const razorpayOrder = await getRazorpayInstance().orders.create({
         amount: amountInPaise,
         currency: "INR",

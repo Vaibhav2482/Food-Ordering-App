@@ -36,8 +36,8 @@ export const createCustomerAddress = async (address) => {
                 address.city,
                 address.state,
                 address.pincode,
-                address.landmark,
-                address.isDefault
+                address.landmark ?? null,
+                address.isDefault ?? false
             ]
         );
 

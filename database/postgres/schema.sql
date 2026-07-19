@@ -58,6 +58,17 @@ CREATE TABLE "Customers" (
     PRIMARY KEY ("CustomerId")
 );
 
+CREATE TABLE "OtpCodes" (
+    "OtpId" INT GENERATED ALWAYS AS IDENTITY NOT NULL,
+    "Phone" VARCHAR(15) NOT NULL,
+    "OtpHash" VARCHAR(255) NOT NULL,
+    "ExpiresAt" TIMESTAMP NOT NULL,
+    "Attempts" INT NOT NULL DEFAULT 0,
+    "CreatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+    PRIMARY KEY ("OtpId"),
+    CONSTRAINT "UQ_OtpCodes_Phone" UNIQUE ("Phone")
+);
+
 CREATE TABLE "CustomerAddresses" (
     "AddressId" INT GENERATED ALWAYS AS IDENTITY NOT NULL,
     "CustomerId" INT NOT NULL,

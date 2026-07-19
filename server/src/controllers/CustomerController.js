@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import * as CustomerService from "../services/CustomerService.js";
+import * as OtpService from "../services/OtpService.js";
 import asyncHandler from "../utils/AsyncHandler.js";
 import { successResponse, errorResponse } from "../utils/ApiResponse.js";
 
@@ -58,6 +59,46 @@ export const customerLogin = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
     const result = await CustomerService.customerLogin(email, password);
+
+    if (!result.success) {
+        return errorResponse(res, result.message, 401);
+    }
+
+    const token = jwt.sign(
+        { id: result.data.CustomerId, role: "customer", email: result.data.Email },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
+    );
+
+    return successResponse(
+        res,
+        { ...result.data, token },
+        result.message
+    );
+
+});
+
+export const sendOtp = asyncHandler(async (req, res) => {
+
+    const result = await OtpService.sendOtp(req.body.phone);
+
+    if (!result.success) {
+        return errorResponse(res, result.message, 400);
+    }
+
+    return successResponse(
+        res,
+        result.data,
+        result.message
+    );
+
+});
+
+export const verifyOtp = asyncHandler(async (req, res) => {
+
+    const { phone, otp } = req.body;
+
+    const result = await OtpService.verifyOtp(phone, otp);
 
     if (!result.success) {
         return errorResponse(res, result.message, 401);

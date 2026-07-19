@@ -7,7 +7,9 @@ import {
     updateCustomer,
     deleteCustomer,
     findOrCreateWalkInCustomer,
-    getOrCreateGuestCustomer
+    getOrCreateGuestCustomer,
+    sendOtp,
+    verifyOtp
 } from "../controllers/CustomerController.js";
 import { authenticate, authorize } from "../middleware/Auth.js";
 
@@ -16,6 +18,10 @@ const router = express.Router();
 router.post("/register", registerCustomer);
 
 router.post("/login", customerLogin);
+
+router.post("/otp/send", sendOtp);
+
+router.post("/otp/verify", verifyOtp);
 
 router.post("/walk-in", authenticate, authorize("admin"), findOrCreateWalkInCustomer);
 

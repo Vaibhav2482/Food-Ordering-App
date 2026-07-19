@@ -18,6 +18,22 @@ export const loginCustomer = async (credentials) => {
 
 };
 
+export const sendOtp = async (phone) => {
+
+    const response = await axiosClient.post(`${API_URL}/otp/send`, { phone });
+
+    return response.data;
+
+};
+
+export const verifyOtp = async (phone, otp) => {
+
+    const response = await axiosClient.post(`${API_URL}/otp/verify`, { phone, otp });
+
+    return response.data;
+
+};
+
 export const getCustomerById = async (customerId) => {
 
     const response = await axiosClient.get(`${API_URL}/${customerId}`);

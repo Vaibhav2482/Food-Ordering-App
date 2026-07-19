@@ -8,6 +8,8 @@ import {
     Typography
 } from "@mui/material";
 
+import BranchSelect from "../../components/BranchSelect";
+
 function OrdersToolbar({
 
     searchText,
@@ -51,45 +53,12 @@ function OrdersToolbar({
 
                 {ownerMode && (
 
-                    <FormControl
-                        size="small"
-                        sx={{
-                            minWidth: 180
-                        }}
-                    >
-
-                        <InputLabel>
-                            Branch
-                        </InputLabel>
-
-                        <Select
-                            value={selectedBranchId}
-                            label="Branch"
-                            onChange={(event) =>
-                                setSelectedBranchId(event.target.value)
-                            }
-                        >
-
-                            <MenuItem value="all">
-                                All Branches
-                            </MenuItem>
-
-                            {
-                                branches.map(branch => (
-
-                                    <MenuItem
-                                        key={branch.BranchId}
-                                        value={branch.BranchId}
-                                    >
-                                        {branch.BranchName}
-                                    </MenuItem>
-
-                                ))
-                            }
-
-                        </Select>
-
-                    </FormControl>
+                    <BranchSelect
+                        branches={branches}
+                        value={selectedBranchId}
+                        onChange={setSelectedBranchId}
+                        allowAll
+                    />
 
                 )}
 

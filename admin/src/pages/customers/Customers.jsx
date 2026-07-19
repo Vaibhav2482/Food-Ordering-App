@@ -5,13 +5,11 @@ import toast from "react-hot-toast";
 import CustomersToolbar from "./CustomersToolbar";
 import CustomersTable from "./CustomersTable";
 import CustomerDialog from "./CustomerDialog";
-import DeleteCustomerDialog from "./DeleteCustomerDialog";
 
 import {
     getAllCustomers,
     getCustomerById,
-    updateCustomer,
-    deleteCustomer
+    getCustomerAddresses
 } from "../../services/customerService";
 
 function Customers() {
@@ -22,15 +20,19 @@ function Customers() {
 
     const [searchText, setSearchText] = useState("");
 
+    const [fromDate, setFromDate] = useState("");
+
+    const [toDate, setToDate] = useState("");
+
+    const [sortOrder, setSortOrder] = useState("newest");
+
     const [selectedCustomer, setSelectedCustomer] = useState(null);
 
-    const [isEditMode, setIsEditMode] =
-    useState(false);
+    const [addresses, setAddresses] = useState([]);
+
+    const [addressesLoading, setAddressesLoading] = useState(false);
 
     const [openDialog, setOpenDialog] = useState(false);
-
-    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    
 
     useEffect(() => {
 
@@ -73,10 +75,26 @@ function Customers() {
             const response = await getCustomerById(customerId);
 
             if (response.success) {
-                setIsEditMode(false);
-                setSelectedCustomer(response.data);
 
+                setSelectedCustomer(response.data);
                 setOpenDialog(true);
+
+                setAddresses([]);
+                setAddressesLoading(true);
+
+                try {
+
+                    const addressResponse = await getCustomerAddresses(customerId);
+
+                    if (addressResponse.success) {
+                        setAddresses(addressResponse.data);
+                    }
+
+                } finally {
+
+                    setAddressesLoading(false);
+
+                }
 
             }
 
@@ -89,165 +107,83 @@ function Customers() {
 
     };
 
-    const handleEdit = async (customerId) => {
+    const filteredCustomers = customers
 
-        try {
+        .filter((customer) =>
 
-            const response = await getCustomerById(customerId);
+            (customer.FullName || "")
+                .toLowerCase()
+                .includes(searchText.toLowerCase()) ||
 
-            if (response.success) {
-                setIsEditMode(true);
-                setSelectedCustomer(response.data);
-                setOpenDialog(true);
+            (customer.Email || "")
+                .toLowerCase()
+                .includes(searchText.toLowerCase()) ||
 
+            (customer.Phone || "")
+                .includes(searchText)
+
+        )
+
+        .filter((customer) => {
+
+            if (!fromDate && !toDate) {
+                return true;
             }
 
-        }
-        catch {
+            const created = new Date(customer.CreatedAt);
 
-            toast.error("Failed to load customer.");
-
-        }
-
-    };
-
-    const handleSave = async (customer) => {
-
-        try {
-
-            const response = await updateCustomer(
-
-                selectedCustomer.CustomerId,
-
-                customer
-
-            );
-
-            if (response.success) {
-
-                toast.success(response.message);
-
-                setOpenDialog(false);
-
-                loadCustomers();
-
+            if (fromDate && created < new Date(`${fromDate}T00:00:00`)) {
+                return false;
             }
 
-        }
-        catch (error) {
-
-            toast.error(
-
-                error.response?.data?.message ||
-
-                "Failed to update customer."
-
-            );
-
-        }
-
-    };
-
-    const handleDelete = async () => {
-
-        try {
-
-            const response = await deleteCustomer(
-
-                selectedCustomer.CustomerId
-
-            );
-
-            if (response.success) {
-
-                toast.success(response.message);
-
-                setDeleteDialogOpen(false);
-
-                loadCustomers();
-
+            if (toDate && created > new Date(`${toDate}T23:59:59`)) {
+                return false;
             }
 
-        }
-        catch (error) {
+            return true;
 
-            toast.error(
+        })
 
-                error.response?.data?.message ||
+        .sort((a, b) => {
 
-                "Failed to delete customer."
+            if (sortOrder === "name") {
+                return (a.FullName || "").localeCompare(b.FullName || "");
+            }
 
-            );
+            const dateA = new Date(a.CreatedAt).getTime();
+            const dateB = new Date(b.CreatedAt).getTime();
 
-        }
+            return sortOrder === "oldest" ? dateA - dateB : dateB - dateA;
 
-    };
-
-    const filteredCustomers = customers.filter((customer) =>
-
-        (customer.FullName || "")
-            .toLowerCase()
-            .includes(searchText.toLowerCase()) ||
-
-        (customer.Email || "")
-            .toLowerCase()
-            .includes(searchText.toLowerCase()) ||
-
-        (customer.Phone || "")
-            .includes(searchText)
-
-    );
+        });
 
     return (
 
         <Box>
 
             <CustomersToolbar
-
                 searchText={searchText}
-
                 setSearchText={setSearchText}
-
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
+                sortOrder={sortOrder}
+                setSortOrder={setSortOrder}
             />
 
             <CustomersTable
-
                 customers={filteredCustomers}
-
                 loading={loading}
-
                 onView={handleView}
-
-                onEdit={handleEdit}
-
-                onDelete={(customer) => {
-
-                    setSelectedCustomer(customer);
-
-                    setDeleteDialogOpen(true);
-
-                }}
-
             />
 
-         <CustomerDialog
-    open={openDialog}
-    onClose={() => setOpenDialog(false)}
-    customer={selectedCustomer}
-    onSave={handleSave}
-    isEditMode={isEditMode}
-/>
-
-            <DeleteCustomerDialog
-
-                open={deleteDialogOpen}
-
+            <CustomerDialog
+                open={openDialog}
+                onClose={() => setOpenDialog(false)}
                 customer={selectedCustomer}
-
-                onClose={() => setDeleteDialogOpen(false)}
-
-                onDelete={handleDelete}
-
+                addresses={addresses}
+                addressesLoading={addressesLoading}
             />
 
         </Box>

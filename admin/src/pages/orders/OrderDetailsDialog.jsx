@@ -104,8 +104,14 @@ function OrderDetailsDialog({
 
         const success = await onStatusChange(orderId, orderStatus);
 
-        if (success) {
+        if (success && orderStatus !== "Delivered") {
             onClose();
+        }
+
+        // Delivered is when staff print the bill — keep the dialog open
+        // and go straight to the print view instead of closing on them.
+        if (success && orderStatus === "Delivered") {
+            setTimeout(() => window.print(), 300);
         }
 
         return success;
@@ -151,6 +157,14 @@ function OrderDetailsDialog({
 
                 <Typography>
                     <strong>Customer :</strong> {orderInfo.CustomerName}
+                    {orderInfo.CustomerPhone && (
+                        <>
+                            {" — "}
+                            <a href={`tel:${orderInfo.CustomerPhone}`} style={{ color: "#0F766E", fontWeight: 600 }}>
+                                {orderInfo.CustomerPhone}
+                            </a>
+                        </>
+                    )}
                 </Typography>
 
                 <Typography>

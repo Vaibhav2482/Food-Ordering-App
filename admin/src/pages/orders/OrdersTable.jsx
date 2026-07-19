@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import CallRoundedIcon from "@mui/icons-material/CallRounded";
 
 import QuickStatusControl from "./QuickStatusControl";
 
@@ -148,7 +149,23 @@ function OrdersTable({
 
                                     <TableCell>
 
-                                        {order.CustomerName}
+                                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+
+                                            {order.CustomerName}
+
+                                            {order.DeliveryType === "Delivery" && order.CustomerPhone && (
+                                                <IconButton
+                                                    size="small"
+                                                    color="success"
+                                                    component="a"
+                                                    href={`tel:${order.CustomerPhone}`}
+                                                    title={`Call ${order.CustomerName} (${order.CustomerPhone})`}
+                                                >
+                                                    <CallRoundedIcon fontSize="small" />
+                                                </IconButton>
+                                            )}
+
+                                        </Box>
 
                                     </TableCell>
 

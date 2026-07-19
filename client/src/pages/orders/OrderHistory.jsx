@@ -20,11 +20,13 @@ function OrderHistory() {
 
     useEffect(() => {
 
-        (async () => {
+        const load = async (silent = false) => {
 
             try {
 
-                setLoading(true);
+                if (!silent) {
+                    setLoading(true);
+                }
 
                 const response = await getOrdersByCustomer(customer.CustomerId);
 
@@ -34,15 +36,33 @@ function OrderHistory() {
 
             } catch {
 
-                toast.error("Failed to load your orders.");
+                if (!silent) {
+                    toast.error("Failed to load your orders.");
+                }
 
             } finally {
 
-                setLoading(false);
+                if (!silent) {
+                    setLoading(false);
+                }
 
             }
 
-        })();
+        };
+
+        load();
+
+        // Silently poll so status changes made by the restaurant show up
+        // without the customer refreshing the page.
+        const interval = setInterval(() => {
+
+            if (document.visibilityState === "visible") {
+                load(true);
+            }
+
+        }, 15000);
+
+        return () => clearInterval(interval);
 
     }, [customer.CustomerId]);
 

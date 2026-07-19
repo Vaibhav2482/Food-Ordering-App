@@ -33,30 +33,48 @@ function OrderDetail() {
 
         loadOrder();
 
+        // Silently poll so the status stepper advances live as the
+        // restaurant updates the order.
+        const interval = setInterval(() => {
+
+            if (document.visibilityState === "visible") {
+                loadOrder(true);
+            }
+
+        }, 15000);
+
+        return () => clearInterval(interval);
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
-    const loadOrder = async () => {
+    const loadOrder = async (silent = false) => {
 
         try {
 
-            setLoading(true);
+            if (!silent) {
+                setLoading(true);
+            }
 
             const response = await getOrderById(id);
 
             if (response.success) {
                 setRows(response.data);
-            } else {
+            } else if (!silent) {
                 toast.error(response.message);
             }
 
         } catch {
 
-            toast.error("Failed to load order.");
+            if (!silent) {
+                toast.error("Failed to load order.");
+            }
 
         } finally {
 
-            setLoading(false);
+            if (!silent) {
+                setLoading(false);
+            }
 
         }
 

@@ -1,5 +1,9 @@
 import {
     Box,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
     TextField,
     Typography
 } from "@mui/material";
@@ -10,7 +14,13 @@ import InputAdornment from "@mui/material/InputAdornment";
 function CustomersToolbar({
 
     searchText,
-    setSearchText
+    setSearchText,
+    fromDate,
+    setFromDate,
+    toDate,
+    setToDate,
+    sortOrder,
+    setSortOrder
 
 }) {
 
@@ -34,24 +44,64 @@ function CustomersToolbar({
                 Customer Management
             </Typography>
 
-            <TextField
-                size="small"
-                placeholder="Search customers..."
-                value={searchText}
-                onChange={(event) =>
-                    setSearchText(event.target.value)
-                }
-                sx={{
-                    width: 250
-                }}
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <SearchIcon fontSize="small" />
-                        </InputAdornment>
-                    )
-                }}
-            />
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
+
+                <TextField
+                    size="small"
+                    label="From"
+                    type="date"
+                    value={fromDate}
+                    onChange={(event) => setFromDate(event.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    sx={{ width: 160 }}
+                />
+
+                <TextField
+                    size="small"
+                    label="To"
+                    type="date"
+                    value={toDate}
+                    onChange={(event) => setToDate(event.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    sx={{ width: 160 }}
+                />
+
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+
+                    <InputLabel>Sort</InputLabel>
+
+                    <Select
+                        label="Sort"
+                        value={sortOrder}
+                        onChange={(event) => setSortOrder(event.target.value)}
+                    >
+                        <MenuItem value="newest">Newest first</MenuItem>
+                        <MenuItem value="oldest">Oldest first</MenuItem>
+                        <MenuItem value="name">Name (A–Z)</MenuItem>
+                    </Select>
+
+                </FormControl>
+
+                <TextField
+                    size="small"
+                    placeholder="Search customers..."
+                    value={searchText}
+                    onChange={(event) =>
+                        setSearchText(event.target.value)
+                    }
+                    sx={{
+                        width: 220
+                    }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon fontSize="small" />
+                            </InputAdornment>
+                        )
+                    }}
+                />
+
+            </Box>
 
         </Box>
 

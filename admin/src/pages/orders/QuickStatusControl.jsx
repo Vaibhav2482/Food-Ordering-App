@@ -57,6 +57,17 @@ function QuickStatusControl({ order, onStatusChange, onCancelOrder, size = "smal
             <Select
                 value={order.OrderStatus}
                 onChange={handleChange}
+                // variant "menu" makes the popup drop below the control like a
+                // normal dropdown. The default "selectedMenu" positions the list
+                // so the selected item covers the anchor; near the bottom of the
+                // viewport that shifts other options under the cursor and the
+                // mouse-release instantly selects one (the "last two rows
+                // auto-select a status" bug).
+                MenuProps={{
+                    variant: "menu",
+                    anchorOrigin: { vertical: "bottom", horizontal: "left" },
+                    transformOrigin: { vertical: "top", horizontal: "left" }
+                }}
                 renderValue={(value) => (
                     <Chip
                         label={value}

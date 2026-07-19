@@ -31,7 +31,8 @@ import OrderSummary from "./OrderSummary";
 
 const PAYMENT_METHODS = ["Cash on Delivery", "UPI", "Card"];
 const ONLINE_PAYMENT_METHODS = ["UPI", "Card"];
-const DELIVERY_TYPES = ["Delivery", "Dine In"];
+// Dine In first — it's the default and the most common way customers order.
+const DELIVERY_TYPES = ["Dine In", "Delivery"];
 
 function Checkout() {
 
@@ -232,8 +233,8 @@ function Checkout() {
                         sx={{ mb: { xs: 2.5, md: 4 } }}
                     >
 
-                        <ToggleButton value="Delivery">Delivery</ToggleButton>
                         <ToggleButton value="Dine In">Dine In</ToggleButton>
+                        <ToggleButton value="Delivery">Delivery</ToggleButton>
 
                     </ToggleButtonGroup>
 
@@ -298,11 +299,15 @@ function Checkout() {
                         <TextField
                             fullWidth
                             multiline
-                            rows={3}
+                            minRows={1}
+                            maxRows={3}
+                            size="small"
                             label="Order Notes (optional)"
+                            placeholder="e.g. less sugar, extra spicy"
                             value={notes}
                             onChange={(event) => setNotes(event.target.value)}
                         />
+
 
                     </Card>
 

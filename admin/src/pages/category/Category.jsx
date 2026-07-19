@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Alert, Box } from "@mui/material";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -175,6 +175,12 @@ const handleEditCategory = (category) => {
     return (
 
         <Box>
+
+            <Alert severity="info" sx={{ mb: 2 }}>
+                Categories are shared across all branches — every branch's menu uses this
+                same list. To control which items a specific branch sells, use Menu
+                Management and pick the branch there.
+            </Alert>
 
             <CategoryToolbar
                 searchText={searchText}

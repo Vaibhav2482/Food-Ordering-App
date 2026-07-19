@@ -12,15 +12,12 @@ const dashed = { borderTop: "1px dashed #000", my: 0.75 };
 
 const row = { display: "flex", justifyContent: "space-between", gap: 1 };
 
-// 80mm thermal-printer style receipt (Petpooja-like). Fixed ~302px wide so
-// it prints 1:1 on receipt printers and previews identically on screen.
-function BillContent({ order, payment }) {
-
-    const rows = order;
-    const info = rows[0];
+// 80mm thermal-printer style receipt, identical to the admin bill so the
+// customer's copy matches what the restaurant prints.
+function ReceiptContent({ order, rows, payment }) {
 
     const totalQty = rows.reduce((sum, item) => sum + Number(item.Quantity || 0), 0);
-    const orderDate = new Date(info.OrderDate);
+    const orderDate = new Date(order.OrderDate);
 
     return (
 
@@ -32,24 +29,24 @@ function BillContent({ order, payment }) {
                     CHAI CHAKHNA COMPANY
                 </Box>
 
-                <Box>{info.BranchName}</Box>
+                <Box>{order.BranchName}</Box>
 
-                {info.BranchAddress && (
+                {order.BranchAddress && (
                     <Box>
-                        {info.BranchAddress}, {info.BranchCity}
-                        {info.BranchPincode ? ` - ${info.BranchPincode}` : ""}
+                        {order.BranchAddress}, {order.BranchCity}
+                        {order.BranchPincode ? ` - ${order.BranchPincode}` : ""}
                     </Box>
                 )}
 
-                {info.BranchPhone && <Box>Ph: {info.BranchPhone}</Box>}
+                {order.BranchPhone && <Box>Ph: {order.BranchPhone}</Box>}
 
             </Box>
 
             <Box sx={dashed} />
 
             <Box sx={row}>
-                <Box>Bill No: <strong>{info.OrderId}</strong></Box>
-                <Box>{info.DeliveryType}{info.TableNumber ? ` / T-${info.TableNumber}` : ""}</Box>
+                <Box>Bill No: <strong>{order.OrderId}</strong></Box>
+                <Box>{order.DeliveryType}{order.TableNumber ? ` / T-${order.TableNumber}` : ""}</Box>
             </Box>
 
             <Box sx={row}>
@@ -57,7 +54,7 @@ function BillContent({ order, payment }) {
                 <Box>{orderDate.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</Box>
             </Box>
 
-            <Box>Name: {info.CustomerName}</Box>
+            <Box>Name: {order.CustomerName}</Box>
 
             <Box sx={dashed} />
 
@@ -85,32 +82,32 @@ function BillContent({ order, payment }) {
 
             <Box sx={row}>
                 <Box>Total Qty: {totalQty}</Box>
-                <Box>Subtotal: {money(info.SubTotal)}</Box>
+                <Box>Subtotal: {money(order.SubTotal)}</Box>
             </Box>
 
             <Box sx={{ ...row, justifyContent: "flex-end" }}>
-                <Box>CGST @2.5%: {money(info.CgstAmount)}</Box>
+                <Box>CGST @2.5%: {money(order.CgstAmount)}</Box>
             </Box>
 
             <Box sx={{ ...row, justifyContent: "flex-end" }}>
-                <Box>SGST @2.5%: {money(info.SgstAmount)}</Box>
+                <Box>SGST @2.5%: {money(order.SgstAmount)}</Box>
             </Box>
 
             <Box sx={dashed} />
 
             <Box sx={{ ...row, fontSize: 15, fontWeight: 700 }}>
                 <Box>TOTAL</Box>
-                <Box>Rs. {money(info.TotalAmount)}</Box>
+                <Box>Rs. {money(order.TotalAmount)}</Box>
             </Box>
 
             <Box sx={dashed} />
 
             <Box sx={row}>
-                <Box>Pay Mode: {info.PaymentMethod}</Box>
+                <Box>Pay Mode: {order.PaymentMethod}</Box>
                 <Box>{payment?.PaymentStatus === "Success" ? "PAID" : "UNPAID"}</Box>
             </Box>
 
-            {info.OrderNotes && <Box>Note: {info.OrderNotes}</Box>}
+            {order.OrderNotes && <Box>Note: {order.OrderNotes}</Box>}
 
             <Box sx={dashed} />
 
@@ -127,4 +124,4 @@ function BillContent({ order, payment }) {
 
 }
 
-export default BillContent;
+export default ReceiptContent;

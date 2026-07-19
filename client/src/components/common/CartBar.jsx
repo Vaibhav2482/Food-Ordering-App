@@ -16,12 +16,13 @@ function CartBar() {
 
             <Box
                 sx={{
-                    display: { xs: "none", md: "flex" },
+                    display: "flex",
                     position: "fixed",
-                    bottom: 16,
+                    // On mobile, sit just above the 64px bottom navigation bar.
+                    bottom: { xs: 76, md: 16 },
                     left: "50%",
                     transform: "translateX(-50%)",
-                    width: 420,
+                    width: { xs: "calc(100% - 24px)", sm: 420 },
                     zIndex: 10,
                     bgcolor: "#F58220",
                     color: "#fff",

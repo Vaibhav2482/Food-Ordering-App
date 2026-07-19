@@ -63,6 +63,24 @@ function Orders() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedBranchId]);
 
+    // Poll for new orders so staff never have to refresh the page. Silent
+    // refreshes reuse loadOrders without the spinner, and skip entirely
+    // while the tab is hidden.
+    useEffect(() => {
+
+        const interval = setInterval(() => {
+
+            if (document.visibilityState === "visible") {
+                loadOrders(true);
+            }
+
+        }, 15000);
+
+        return () => clearInterval(interval);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedBranchId]);
+
     const loadBranches = async () => {
 
         try {
@@ -81,11 +99,13 @@ function Orders() {
 
     };
 
-    const loadOrders = async () => {
+    const loadOrders = async (silent = false) => {
 
         try {
 
-            setLoading(true);
+            if (!silent) {
+                setLoading(true);
+            }
 
             const response =
                 await getAllOrders(
@@ -106,16 +126,41 @@ function Orders() {
         }
         catch {
 
-            toast.error(
-                "Failed to load orders."
-            );
+            if (!silent) {
+                toast.error(
+                    "Failed to load orders."
+                );
+            }
 
         }
         finally {
 
-            setLoading(false);
+            if (!silent) {
+                setLoading(false);
+            }
 
         }
+
+    };
+
+    // Patch a single order's fields in state so a status change never
+    // re-renders the whole screen through the loading spinner.
+    const patchOrder = (orderId, changes) => {
+
+        setOrders((prev) =>
+            prev.map((order) =>
+                order.OrderId === orderId
+                    ? { ...order, ...changes }
+                    : order
+            )
+        );
+
+        // selectedOrder holds the getOrderById rows (order + one row per item)
+        setSelectedOrder((prev) =>
+            Array.isArray(prev) && prev[0]?.OrderId === orderId
+                ? prev.map((row) => ({ ...row, ...changes }))
+                : prev
+        );
 
     };
 
@@ -189,7 +234,7 @@ function Orders() {
                 response.message
             );
 
-            await loadOrders();
+            patchOrder(orderId, { OrderStatus: response.data?.OrderStatus || orderStatus });
 
             return true;
 
@@ -214,9 +259,11 @@ function Orders() {
 
             if (response.success) {
                 setSelectedOrder(response.data);
+                patchOrder(orderId, {
+                    TotalAmount: response.data.TotalAmount,
+                    OrderStatus: response.data.OrderStatus
+                });
             }
-
-            await loadOrders();
 
         } catch {
 
@@ -242,7 +289,7 @@ function Orders() {
 
             toast.success(response.message);
 
-            await loadOrders();
+            patchOrder(orderId, { OrderStatus: "Cancelled" });
 
             return true;
 

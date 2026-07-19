@@ -2,15 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import {
     Box,
     Card,
-    FormControl,
     Grid,
-    InputLabel,
-    MenuItem,
-    Select,
     TextField,
     Typography
 } from "@mui/material";
 import toast from "react-hot-toast";
+
+import BranchSelect from "../../components/BranchSelect";
 
 import TableCard from "./TableCard";
 import OrderBuilder from "../orders/OrderBuilder";
@@ -64,6 +62,27 @@ function DineIn() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedBranchId]);
 
+    // Silently refresh table occupancy so new dine-in orders appear
+    // without staff reloading the page.
+    useEffect(() => {
+
+        if (!selectedBranchId) {
+            return undefined;
+        }
+
+        const interval = setInterval(() => {
+
+            if (document.visibilityState === "visible") {
+                loadTableState(selectedBranchId, true);
+            }
+
+        }, 15000);
+
+        return () => clearInterval(interval);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedBranchId]);
+
     const loadBranches = async () => {
 
         try {
@@ -88,11 +107,13 @@ function DineIn() {
 
     };
 
-    const loadTableState = async (branchId) => {
+    const loadTableState = async (branchId, silent = false) => {
 
         try {
 
-            setLoading(true);
+            if (!silent) {
+                setLoading(true);
+            }
 
             const [tablesResponse, ordersResponse] = await Promise.all([
                 getActiveTables(branchId),
@@ -109,11 +130,15 @@ function DineIn() {
 
         } catch {
 
-            toast.error("Failed to load table status.");
+            if (!silent) {
+                toast.error("Failed to load table status.");
+            }
 
         } finally {
 
-            setLoading(false);
+            if (!silent) {
+                setLoading(false);
+            }
 
         }
 
@@ -202,7 +227,16 @@ function DineIn() {
             }
 
             toast.success(response.message);
-            await loadTableState(selectedBranchId);
+
+            // Patch the open dialog in place so the Delivered print flow
+            // shows the new status without a jarring full reload.
+            setSelectedOrder((prev) =>
+                Array.isArray(prev) && prev[0]?.OrderId === orderId
+                    ? prev.map((row) => ({ ...row, OrderStatus: orderStatus }))
+                    : prev
+            );
+
+            await loadTableState(selectedBranchId, true);
             return true;
 
         } catch {
@@ -269,28 +303,14 @@ function DineIn() {
 
                     {ownerMode && (
 
-                        <FormControl size="small" sx={{ minWidth: 200 }}>
-
-                            <InputLabel>Branch</InputLabel>
-
-                            <Select
-                                label="Branch"
-                                value={selectedBranchId ?? ""}
-                                onChange={(event) => {
-                                    setSelectedBranchId(event.target.value);
-                                    setSelectedTable(null);
-                                }}
-                            >
-
-                                {branches.map((branch) => (
-                                    <MenuItem key={branch.BranchId} value={branch.BranchId}>
-                                        {branch.BranchName}
-                                    </MenuItem>
-                                ))}
-
-                            </Select>
-
-                        </FormControl>
+                        <BranchSelect
+                            branches={branches}
+                            value={selectedBranchId}
+                            onChange={(value) => {
+                                setSelectedBranchId(value);
+                                setSelectedTable(null);
+                            }}
+                        />
 
                     )}
 

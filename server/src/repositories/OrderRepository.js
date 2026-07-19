@@ -150,6 +150,7 @@ export const getAllOrders = async (branchId) => {
 
     const result = await pool.query(
         `SELECT O."OrderId", O."BranchId", B."BranchName", O."CustomerId", C."FullName" AS "CustomerName",
+                C."Phone" AS "CustomerPhone",
                 O."AddressId", O."DeliveryType", O."PaymentMethod", O."TotalAmount", O."OrderStatus",
                 O."OrderNotes", O."OrderDate", O."TableNumber"
          FROM "Orders" O
@@ -168,6 +169,9 @@ export const getOrderById = async (orderId) => {
 
     const result = await pool.query(
         `SELECT O."OrderId", O."BranchId", B."BranchName", O."CustomerId", C."FullName" AS "CustomerName",
+                C."Phone" AS "CustomerPhone",
+                B."Address" AS "BranchAddress", B."City" AS "BranchCity", B."Pincode" AS "BranchPincode",
+                B."Phone" AS "BranchPhone",
                 O."AddressId", O."DeliveryType", O."PaymentMethod", O."SubTotal", O."CgstAmount", O."SgstAmount",
                 O."TotalAmount", O."OrderStatus", O."OrderNotes", O."OrderDate", O."TableNumber",
                 OI."OrderItemId", OI."MenuItemId", OI."ItemName", OI."Price", OI."Quantity", OI."TotalPrice"

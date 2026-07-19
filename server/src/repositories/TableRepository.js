@@ -6,7 +6,9 @@ export const getActiveTables = async (branchId) => {
         `SELECT "TableId", "BranchId", "TableName", "Capacity"
          FROM "Tables"
          WHERE "BranchId" = $1 AND "IsActive" = TRUE
-         ORDER BY "TableName"`,
+         ORDER BY regexp_replace("TableName", '\\d+', '', 'g'),
+                  NULLIF(regexp_replace("TableName", '\\D', '', 'g'), '')::bigint NULLS FIRST,
+                  "TableName"`,
         [branchId]
     );
 
@@ -21,7 +23,10 @@ export const getAllTables = async (branchId) => {
          FROM "Tables" T
          INNER JOIN "Branches" B ON T."BranchId" = B."BranchId"
          WHERE $1::int IS NULL OR T."BranchId" = $1
-         ORDER BY B."BranchName", T."TableName"`,
+         ORDER BY B."BranchName",
+                  regexp_replace(T."TableName", '\\d+', '', 'g'),
+                  NULLIF(regexp_replace(T."TableName", '\\D', '', 'g'), '')::bigint NULLS FIRST,
+                  T."TableName"`,
         [branchId ?? null]
     );
 
@@ -36,6 +41,21 @@ export const getTableById = async (tableId) => {
          FROM "Tables"
          WHERE "TableId" = $1`,
         [tableId]
+    );
+
+    return result.rows[0];
+
+};
+
+export const getTableByName = async (branchId, tableName, excludeTableId = null) => {
+
+    const result = await pool.query(
+        `SELECT "TableId", "TableName", "IsActive"
+         FROM "Tables"
+         WHERE "BranchId" = $1
+           AND LOWER(TRIM("TableName")) = LOWER(TRIM($2))
+           AND ($3::int IS NULL OR "TableId" <> $3)`,
+        [branchId, tableName, excludeTableId]
     );
 
     return result.rows[0];

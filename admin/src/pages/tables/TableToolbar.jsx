@@ -1,15 +1,12 @@
 import {
     Box,
     Button,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Select,
     TextField,
     Typography
 } from "@mui/material";
 
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import BranchSelect from "../../components/BranchSelect";
 
 function TableToolbar({
 
@@ -54,39 +51,11 @@ function TableToolbar({
 
                 {ownerMode && (
 
-                    <FormControl
-                        size="small"
-                        sx={{ minWidth: 200 }}
-                    >
-
-                        <InputLabel>
-                            Branch
-                        </InputLabel>
-
-                        <Select
-                            value={selectedBranchId ?? ""}
-                            label="Branch"
-                            onChange={(event) =>
-                                setSelectedBranchId(event.target.value)
-                            }
-                        >
-
-                            {
-                                branches.map(branch => (
-
-                                    <MenuItem
-                                        key={branch.BranchId}
-                                        value={branch.BranchId}
-                                    >
-                                        {branch.BranchName}
-                                    </MenuItem>
-
-                                ))
-                            }
-
-                        </Select>
-
-                    </FormControl>
+                    <BranchSelect
+                        branches={branches}
+                        value={selectedBranchId}
+                        onChange={setSelectedBranchId}
+                    />
 
                 )}
 

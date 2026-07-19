@@ -66,6 +66,17 @@ export const createTable = async (table) => {
         };
     }
 
+    const duplicate = await TableRepository.getTableByName(table.branchId, table.tableName);
+
+    if (duplicate) {
+        return {
+            success: false,
+            message: duplicate.IsActive
+                ? `A table named "${duplicate.TableName}" already exists in this branch.`
+                : `A deactivated table named "${duplicate.TableName}" already exists in this branch — reactivate it instead.`
+        };
+    }
+
     const createdTable = await TableRepository.createTable(table);
 
     return {
@@ -91,6 +102,19 @@ export const updateTable = async (tableId, table) => {
         return {
             success: false,
             message: "Table Name is required."
+        };
+    }
+
+    const duplicate = await TableRepository.getTableByName(
+        existingTable.BranchId,
+        table.tableName,
+        Number(tableId)
+    );
+
+    if (duplicate) {
+        return {
+            success: false,
+            message: `A table named "${duplicate.TableName}" already exists in this branch.`
         };
     }
 

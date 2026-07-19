@@ -14,16 +14,12 @@ import {
 } from "@mui/material";
 
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 
 function CustomersTable({
 
     customers,
     loading,
-    onView,
-    onEdit,
-    onDelete
+    onView
 
 }) {
 
@@ -167,7 +163,7 @@ function CustomersTable({
 
                                 <TableCell align="center">
 
-                                    <Tooltip title="View">
+                                    <Tooltip title="View Details">
 
                                         <IconButton
                                             color="primary"
@@ -179,40 +175,6 @@ function CustomersTable({
                                         >
 
                                             <VisibilityIcon />
-
-                                        </IconButton>
-
-                                    </Tooltip>
-
-                                    <Tooltip title="Edit">
-
-                                        <IconButton
-                                            color="warning"
-                                            onClick={() =>
-                                                onEdit(
-                                                    customer.CustomerId
-                                                )
-                                            }
-                                        >
-
-                                            <EditIcon />
-
-                                        </IconButton>
-
-                                    </Tooltip>
-
-                                    <Tooltip title="Delete">
-
-                                        <IconButton
-                                            color="error"
-                                            onClick={() =>
-                                                onDelete(
-                                                    customer
-                                                )
-                                            }
-                                        >
-
-                                            <DeleteIcon />
 
                                         </IconButton>
 

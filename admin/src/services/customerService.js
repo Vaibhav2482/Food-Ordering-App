@@ -36,6 +36,14 @@ export const getCustomerById = async (customerId) => {
 
 };
 
+export const getCustomerAddresses = async (customerId) => {
+
+    const response = await axiosClient.get(`/customer-addresses/${customerId}`);
+
+    return response.data;
+
+};
+
 export const updateCustomer = async (customerId, customer) => {
 
     const response = await axiosClient.put(

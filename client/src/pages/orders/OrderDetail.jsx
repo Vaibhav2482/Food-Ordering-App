@@ -167,12 +167,32 @@ function OrderDetail() {
 
                     <>
 
-                        <Box sx={{ overflowX: "auto", mb: 2 }}>
+                        {/* Vertical on phones — the horizontal stepper overflows
+                            and clips labels on narrow screens. */}
+                        <Box sx={{ display: { xs: "block", sm: "none" }, mb: 2 }}>
+
+                            <Stepper
+                                activeStep={activeStep}
+                                orientation="vertical"
+                                sx={{ "& .MuiStepLabel-label": { fontSize: 14 } }}
+                            >
+
+                                {statusSteps.map((step) => (
+                                    <Step key={step}>
+                                        <StepLabel>{step}</StepLabel>
+                                    </Step>
+                                ))}
+
+                            </Stepper>
+
+                        </Box>
+
+                        <Box sx={{ display: { xs: "none", sm: "block" }, mb: 2 }}>
 
                             <Stepper
                                 activeStep={activeStep}
                                 alternativeLabel
-                                sx={{ minWidth: 480, "& .MuiStepLabel-label": { fontSize: 12 } }}
+                                sx={{ "& .MuiStepLabel-label": { fontSize: 12 } }}
                             >
 
                                 {statusSteps.map((step) => (

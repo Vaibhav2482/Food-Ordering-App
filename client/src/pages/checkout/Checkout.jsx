@@ -29,7 +29,8 @@ import AddressSelector from "./AddressSelector";
 import AddressDialog from "./AddressDialog";
 import OrderSummary from "./OrderSummary";
 
-const PAYMENT_METHODS = ["Cash on Delivery", "UPI", "Card"];
+// UPI first — online payment is the default.
+const PAYMENT_METHODS = ["UPI", "Card", "Cash on Delivery"];
 const ONLINE_PAYMENT_METHODS = ["UPI", "Card"];
 // Dine In first — it's the default and the most common way customers order.
 const DELIVERY_TYPES = ["Dine In", "Delivery"];

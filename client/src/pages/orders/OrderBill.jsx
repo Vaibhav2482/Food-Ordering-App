@@ -12,16 +12,20 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
+import { createPortal } from "react-dom";
+
 import { getOrderById } from "../../services/orderService";
 import { getPaymentByOrderId } from "../../services/paymentService";
 import ReceiptContent from "./ReceiptContent";
 
+// Printing the app itself drags in the bottom nav and full-viewport layout
+// (blank second page). Instead, hide the entire app when printing and show
+// only a receipt copy rendered outside #root via a portal.
 const printStyles = {
     "@media print": {
-        header: { display: "none !important" },
-        footer: { display: "none !important" },
-        ".no-print": { display: "none !important" },
-        ".receipt-frame": { border: "none !important", padding: "0 !important" }
+        "#root": { display: "none !important" },
+        ".receipt-print-area": { display: "block !important" },
+        "@page": { margin: "10mm" }
     }
 };
 
@@ -130,11 +134,21 @@ function OrderBill() {
 
                 </Box>
 
-                <Box className="receipt-frame" sx={{ border: "1px solid #E5E7EB", borderRadius: 3, p: 3, width: "fit-content", mx: "auto" }}>
+                <Box sx={{ border: "1px solid #E5E7EB", borderRadius: 3, p: 3, width: "fit-content", mx: "auto" }}>
 
                     <ReceiptContent order={order} rows={rows} payment={payment} />
 
                 </Box>
+
+                {createPortal(
+
+                    <Box className="receipt-print-area" sx={{ display: "none" }}>
+                        <ReceiptContent order={order} rows={rows} payment={payment} />
+                    </Box>,
+
+                    document.body
+
+                )}
 
             </Container>
 

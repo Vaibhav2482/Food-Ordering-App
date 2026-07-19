@@ -45,6 +45,14 @@ export function useRazorpayPayment() {
                             contact: customer?.Phone
                         },
                         theme: { color: "#F58220" },
+                        // Explicitly request UPI alongside the other methods —
+                        // test-mode accounts sometimes hide it by default.
+                        method: {
+                            upi: true,
+                            card: true,
+                            netbanking: true,
+                            wallet: true
+                        },
                         handler: async (response) => {
 
                             try {

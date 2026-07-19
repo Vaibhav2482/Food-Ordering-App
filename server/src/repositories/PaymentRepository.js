@@ -1,31 +1,39 @@
-import sql from "../config/db.js";
+import pool from "../config/db.js";
 
 export const createPayment = async (payment) => {
 
-    const pool = await sql.connect();
+    const orderCheck = await pool.query(`SELECT 1 FROM "Orders" WHERE "OrderId" = $1`, [payment.orderId]);
 
-    const result = await pool
-        .request()
-        .input("OrderId", sql.Int, payment.orderId)
-        .input("PaymentMethod", sql.NVarChar(50), payment.paymentMethod)
-        .input("Amount", sql.Decimal(10, 2), payment.amount)
-        .input("PaymentStatus", sql.NVarChar(20), payment.paymentStatus ?? "Pending")
-        .input("TransactionId", sql.NVarChar(150), payment.transactionId ?? null)
-        .execute("sp_CreatePayment");
+    if (orderCheck.rows.length === 0) {
+        throw new Error("Order not found.");
+    }
 
-    return result.recordset[0];
+    const result = await pool.query(
+        `INSERT INTO "Payments" ("OrderId", "PaymentMethod", "Amount", "PaymentStatus", "TransactionId", "PaymentDate")
+         VALUES ($1, $2, $3, $4, $5, NOW())
+         RETURNING *`,
+        [
+            payment.orderId,
+            payment.paymentMethod,
+            payment.amount,
+            payment.paymentStatus ?? "Pending",
+            payment.transactionId ?? null
+        ]
+    );
+
+    return result.rows[0];
 
 };
 
 export const getPaymentByOrderId = async (orderId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT "PaymentId", "OrderId", "PaymentMethod", "Amount", "PaymentStatus", "TransactionId", "PaymentDate"
+         FROM "Payments"
+         WHERE "OrderId" = $1`,
+        [orderId]
+    );
 
-    const result = await pool
-        .request()
-        .input("OrderId", sql.Int, orderId)
-        .execute("sp_GetPaymentByOrderId");
-
-    return result.recordset;
+    return result.rows;
 
 };

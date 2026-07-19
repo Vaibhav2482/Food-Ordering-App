@@ -1,84 +1,83 @@
-import sql from "../config/db.js";
+import pool from "../config/db.js";
 
 export const getActiveTables = async (branchId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT "TableId", "BranchId", "TableName", "Capacity"
+         FROM "Tables"
+         WHERE "BranchId" = $1 AND "IsActive" = TRUE
+         ORDER BY "TableName"`,
+        [branchId]
+    );
 
-    const result = await pool
-        .request()
-        .input("BranchId", sql.Int, branchId)
-        .execute("sp_GetActiveTables");
-
-    return result.recordset;
+    return result.rows;
 
 };
 
 export const getAllTables = async (branchId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT T."TableId", T."BranchId", B."BranchName", T."TableName", T."Capacity", T."IsActive", T."CreatedAt", T."UpdatedAt"
+         FROM "Tables" T
+         INNER JOIN "Branches" B ON T."BranchId" = B."BranchId"
+         WHERE $1::int IS NULL OR T."BranchId" = $1
+         ORDER BY B."BranchName", T."TableName"`,
+        [branchId ?? null]
+    );
 
-    const result = await pool
-        .request()
-        .input("BranchId", sql.Int, branchId ?? null)
-        .execute("sp_GetAllTables");
-
-    return result.recordset;
+    return result.rows;
 
 };
 
 export const getTableById = async (tableId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT "TableId", "BranchId", "TableName", "Capacity", "IsActive", "CreatedAt", "UpdatedAt"
+         FROM "Tables"
+         WHERE "TableId" = $1`,
+        [tableId]
+    );
 
-    const result = await pool
-        .request()
-        .input("TableId", sql.Int, tableId)
-        .execute("sp_GetTableById");
-
-    return result.recordset[0];
+    return result.rows[0];
 
 };
 
 export const createTable = async (table) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `INSERT INTO "Tables" ("BranchId", "TableName", "Capacity", "IsActive", "CreatedAt")
+         VALUES ($1, $2, $3, TRUE, NOW())
+         RETURNING *`,
+        [table.branchId, table.tableName, table.capacity ?? null]
+    );
 
-    const result = await pool
-        .request()
-        .input("BranchId", sql.Int, table.branchId)
-        .input("TableName", sql.NVarChar(20), table.tableName)
-        .input("Capacity", sql.Int, table.capacity ?? null)
-        .execute("sp_CreateTable");
-
-    return result.recordset[0];
+    return result.rows[0];
 
 };
 
 export const updateTable = async (table) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `UPDATE "Tables"
+         SET "TableName" = $1, "Capacity" = $2, "IsActive" = $3, "UpdatedAt" = NOW()
+         WHERE "TableId" = $4
+         RETURNING *`,
+        [table.tableName, table.capacity ?? null, table.isActive, table.tableId]
+    );
 
-    const result = await pool
-        .request()
-        .input("TableId", sql.Int, table.tableId)
-        .input("TableName", sql.NVarChar(20), table.tableName)
-        .input("Capacity", sql.Int, table.capacity ?? null)
-        .input("IsActive", sql.Bit, table.isActive)
-        .execute("sp_UpdateTable");
-
-    return result.recordset[0];
+    return result.rows[0];
 
 };
 
 export const deactivateTable = async (tableId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `UPDATE "Tables"
+         SET "IsActive" = FALSE, "UpdatedAt" = NOW()
+         WHERE "TableId" = $1`,
+        [tableId]
+    );
 
-    const result = await pool
-        .request()
-        .input("TableId", sql.Int, tableId)
-        .execute("sp_DeactivateTable");
-
-    return result.recordset[0];
+    return { RowsAffected: result.rowCount };
 
 };

@@ -1,118 +1,114 @@
-import sql from "../config/db.js";
+import pool from "../config/db.js";
 
 export const getCustomerByEmail = async (email) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT * FROM "Customers" WHERE "Email" = $1`,
+        [email]
+    );
 
-    const result = await pool
-        .request()
-        .input("Email", sql.NVarChar(100), email)
-        .query(`
-            SELECT *
-            FROM dbo.Customers
-            WHERE Email = @Email
-        `);
-
-    return result.recordset[0];
+    return result.rows[0];
 
 };
 
 export const getCustomerByPhone = async (phone) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT * FROM "Customers" WHERE "Phone" = $1`,
+        [phone]
+    );
 
-    const result = await pool
-        .request()
-        .input("Phone", sql.NVarChar(15), phone)
-        .query(`
-            SELECT *
-            FROM dbo.Customers
-            WHERE Phone = @Phone
-        `);
-
-    return result.recordset[0];
+    return result.rows[0];
 
 };
 
 export const createCustomer = async (customer) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `INSERT INTO "Customers" ("FullName", "Email", "Phone", "Password", "IsActive", "CreatedAt")
+         VALUES ($1, $2, $3, $4, TRUE, NOW())
+         RETURNING *`,
+        [customer.fullName, customer.email, customer.phone, customer.password]
+    );
 
-    const result = await pool
-        .request()
-        .input("FullName", sql.NVarChar(100), customer.fullName)
-        .input("Email", sql.NVarChar(100), customer.email)
-        .input("Phone", sql.NVarChar(15), customer.phone)
-        .input("Password", sql.NVarChar(255), customer.password)
-        .execute("sp_CreateCustomer");
-
-    return result.recordset[0];
+    return result.rows[0];
 
 };
 
 export const customerLogin = async (email) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT "CustomerId", "FullName", "Email", "Phone", "Password", "IsActive"
+         FROM "Customers"
+         WHERE "Email" = $1 AND "IsActive" = TRUE`,
+        [email]
+    );
 
-    const result = await pool
-        .request()
-        .input("Email", sql.NVarChar(100), email)
-        .execute("sp_CustomerLogin");
-
-    return result.recordset[0];
+    return result.rows[0];
 
 };
 
 export const getCustomerById = async (customerId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT "CustomerId", "FullName", "Email", "Phone", "IsActive", "CreatedAt", "UpdatedAt"
+         FROM "Customers"
+         WHERE "CustomerId" = $1 AND "IsActive" = TRUE`,
+        [customerId]
+    );
 
-    const result = await pool
-        .request()
-        .input("CustomerId", sql.Int, customerId)
-        .execute("sp_GetCustomerById");
-
-    return result.recordset[0];
+    return result.rows[0];
 
 };
 
 export const updateCustomer = async (customer) => {
 
-    const pool = await sql.connect();
+    await pool.query(
+        `UPDATE "Customers"
+         SET "FullName" = $1, "Email" = $2, "Phone" = $3, "UpdatedAt" = NOW()
+         WHERE "CustomerId" = $4 AND "IsActive" = TRUE`,
+        [customer.fullName, customer.email, customer.phone, customer.customerId]
+    );
 
-    const result = await pool
-        .request()
-        .input("CustomerId", sql.Int, customer.customerId)
-        .input("FullName", sql.NVarChar(100), customer.fullName)
-        .input("Email", sql.NVarChar(100), customer.email)
-        .input("Phone", sql.NVarChar(15), customer.phone)
-        .execute("sp_UpdateCustomer");
+    const result = await pool.query(
+        `SELECT "CustomerId", "FullName", "Email", "Phone", "IsActive", "CreatedAt", "UpdatedAt"
+         FROM "Customers"
+         WHERE "CustomerId" = $1`,
+        [customer.customerId]
+    );
 
-    return result.recordset[0];
+    return result.rows[0];
 
 };
 
 export const getAllCustomers = async () => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(`
+        SELECT "CustomerId", "FullName", "Email", "Phone", "CreatedAt", "UpdatedAt"
+        FROM "Customers"
+        ORDER BY "CustomerId" DESC
+    `);
 
-    const result = await pool
-        .request()
-        .execute("sp_GetAllCustomers");
-
-    return result.recordset;
+    return result.rows;
 
 };
 
 export const deleteCustomer = async (customerId) => {
 
-    const pool = await sql.connect();
+    const existingOrders = await pool.query(
+        `SELECT 1 FROM "Orders" WHERE "CustomerId" = $1 LIMIT 1`,
+        [customerId]
+    );
 
-    const result = await pool
-        .request()
-        .input("CustomerId", sql.Int, customerId)
-        .execute("sp_DeleteCustomer");
+    if (existingOrders.rows.length > 0) {
+        throw new Error("Customer cannot be deleted because order history exists.");
+    }
 
-    return result.recordset[0];
+    await pool.query(`DELETE FROM "Cart" WHERE "CustomerId" = $1`, [customerId]);
+    await pool.query(`DELETE FROM "CustomerAddresses" WHERE "CustomerId" = $1`, [customerId]);
+
+    const result = await pool.query(`DELETE FROM "Customers" WHERE "CustomerId" = $1`, [customerId]);
+
+    return { RowsAffected: result.rowCount };
 
 };

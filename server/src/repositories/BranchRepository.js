@@ -1,89 +1,95 @@
-import sql from "../config/db.js";
+import pool from "../config/db.js";
 
 export const getActiveBranches = async () => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(`
+        SELECT "BranchId", "BranchName", "Address", "City", "State", "Pincode", "Phone"
+        FROM "Branches"
+        WHERE "IsActive" = TRUE
+        ORDER BY "BranchName"
+    `);
 
-    const result = await pool
-        .request()
-        .execute("sp_GetActiveBranches");
-
-    return result.recordset;
+    return result.rows;
 
 };
 
 export const getAllBranches = async () => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(`
+        SELECT "BranchId", "BranchName", "Address", "City", "State", "Pincode", "Phone", "IsActive", "CreatedAt", "UpdatedAt"
+        FROM "Branches"
+        ORDER BY "BranchName"
+    `);
 
-    const result = await pool
-        .request()
-        .execute("sp_GetAllBranches");
-
-    return result.recordset;
+    return result.rows;
 
 };
 
 export const getBranchById = async (branchId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT "BranchId", "BranchName", "Address", "City", "State", "Pincode", "Phone", "IsActive", "CreatedAt", "UpdatedAt"
+         FROM "Branches"
+         WHERE "BranchId" = $1`,
+        [branchId]
+    );
 
-    const result = await pool
-        .request()
-        .input("BranchId", sql.Int, branchId)
-        .execute("sp_GetBranchById");
-
-    return result.recordset[0];
+    return result.rows[0];
 
 };
 
 export const createBranch = async (branch) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `INSERT INTO "Branches" ("BranchName", "Address", "City", "State", "Pincode", "Phone", "IsActive", "CreatedAt")
+         VALUES ($1, $2, $3, $4, $5, $6, TRUE, NOW())
+         RETURNING *`,
+        [
+            branch.branchName,
+            branch.address ?? null,
+            branch.city ?? null,
+            branch.state ?? null,
+            branch.pincode ?? null,
+            branch.phone ?? null
+        ]
+    );
 
-    const result = await pool
-        .request()
-        .input("BranchName", sql.NVarChar(150), branch.branchName)
-        .input("Address", sql.NVarChar(500), branch.address ?? null)
-        .input("City", sql.NVarChar(100), branch.city ?? null)
-        .input("State", sql.NVarChar(100), branch.state ?? null)
-        .input("Pincode", sql.NVarChar(10), branch.pincode ?? null)
-        .input("Phone", sql.NVarChar(20), branch.phone ?? null)
-        .execute("sp_CreateBranch");
-
-    return result.recordset[0];
+    return result.rows[0];
 
 };
 
 export const updateBranch = async (branch) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `UPDATE "Branches"
+         SET "BranchName" = $1, "Address" = $2, "City" = $3, "State" = $4, "Pincode" = $5, "Phone" = $6, "IsActive" = $7, "UpdatedAt" = NOW()
+         WHERE "BranchId" = $8
+         RETURNING *`,
+        [
+            branch.branchName,
+            branch.address ?? null,
+            branch.city ?? null,
+            branch.state ?? null,
+            branch.pincode ?? null,
+            branch.phone ?? null,
+            branch.isActive ?? true,
+            branch.branchId
+        ]
+    );
 
-    const result = await pool
-        .request()
-        .input("BranchId", sql.Int, branch.branchId)
-        .input("BranchName", sql.NVarChar(150), branch.branchName)
-        .input("Address", sql.NVarChar(500), branch.address ?? null)
-        .input("City", sql.NVarChar(100), branch.city ?? null)
-        .input("State", sql.NVarChar(100), branch.state ?? null)
-        .input("Pincode", sql.NVarChar(10), branch.pincode ?? null)
-        .input("Phone", sql.NVarChar(20), branch.phone ?? null)
-        .input("IsActive", sql.Bit, branch.isActive)
-        .execute("sp_UpdateBranch");
-
-    return result.recordset[0];
+    return result.rows[0];
 
 };
 
 export const deactivateBranch = async (branchId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `UPDATE "Branches"
+         SET "IsActive" = FALSE, "UpdatedAt" = NOW()
+         WHERE "BranchId" = $1`,
+        [branchId]
+    );
 
-    const result = await pool
-        .request()
-        .input("BranchId", sql.Int, branchId)
-        .execute("sp_DeactivateBranch");
-
-    return result.recordset[0];
+    return { RowsAffected: result.rowCount };
 
 };

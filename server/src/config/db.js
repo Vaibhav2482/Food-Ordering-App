@@ -1,25 +1,33 @@
-import sql from "mssql";
+import pg from "pg";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const config = {
-    server: process.env.DB_SERVER,
-    database: process.env.DB_DATABASE,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
+const { Pool, types } = pg;
 
-    options: {
-        encrypt: process.env.DB_ENCRYPT === "true",
-        trustServerCertificate:
-            process.env.DB_TRUST_SERVER_CERTIFICATE === "true",
-    },
-};
+// node-postgres returns NUMERIC/DECIMAL as strings by default (safe for
+// arbitrary precision), but every price/total field in this app (Price,
+// SubTotal, TotalAmount, etc.) is passed straight through to the two React
+// frontends as a plain number, matching what mssql returned. Parse them as
+// floats here instead of hunting down every call site.
+types.setTypeParser(1700, (value) => (value === null ? null : parseFloat(value)));
+
+// Same reasoning for BIGINT (COUNT(*) results, OID 20) — node-postgres
+// returns these as strings to avoid precision loss beyond
+// Number.MAX_SAFE_INTEGER, which this app's order/customer counts will
+// never approach. mssql returned these as plain numbers.
+types.setTypeParser(20, (value) => (value === null ? null : parseInt(value, 10)));
+
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DB_SSL === "false" ? false : { rejectUnauthorized: false },
+});
 
 export const connectDB = async () => {
     try {
-        await sql.connect(config);
-        console.log("✅ SQL Server Connected Successfully");
+        const client = await pool.connect();
+        client.release();
+        console.log("✅ PostgreSQL Connected Successfully");
     } catch (error) {
         console.error("❌ Database Connection Failed");
         console.error(error.message);
@@ -27,4 +35,4 @@ export const connectDB = async () => {
     }
 };
 
-export default sql;
+export default pool;

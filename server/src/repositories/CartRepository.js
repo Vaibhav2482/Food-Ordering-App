@@ -1,69 +1,147 @@
-import sql from "../config/db.js";
+import pool from "../config/db.js";
 
 export const addToCart = async (cart) => {
 
-    const pool = await sql.connect();
+    const client = await pool.connect();
 
-    const result = await pool
-        .request()
-        .input("CustomerId", sql.Int, cart.customerId)
-        .input("MenuItemId", sql.Int, cart.menuItemId)
-        .input("Quantity", sql.Int, cart.quantity)
-        .execute("sp_AddToCart");
+    try {
 
-    return result.recordset[0];
+        await client.query("BEGIN");
+
+        const customerCheck = await client.query(
+            `SELECT 1 FROM "Customers" WHERE "CustomerId" = $1 AND "IsActive" = TRUE`,
+            [cart.customerId]
+        );
+
+        if (customerCheck.rows.length === 0) {
+            throw new Error("Customer not found.");
+        }
+
+        const menuItemCheck = await client.query(
+            `SELECT "BranchId" FROM "MenuItems" WHERE "MenuItemId" = $1 AND "IsAvailable" = TRUE`,
+            [cart.menuItemId]
+        );
+
+        const newItemBranchId = menuItemCheck.rows[0]?.BranchId;
+
+        if (!newItemBranchId) {
+            throw new Error("Menu item not found.");
+        }
+
+        const branchMismatch = await client.query(
+            `SELECT 1
+             FROM "Cart" C
+             INNER JOIN "MenuItems" M ON C."MenuItemId" = M."MenuItemId"
+             WHERE C."CustomerId" = $1 AND M."BranchId" <> $2`,
+            [cart.customerId, newItemBranchId]
+        );
+
+        if (branchMismatch.rows.length > 0) {
+            throw new Error("Your cart has items from a different branch. Clear your cart before ordering from a new branch.");
+        }
+
+        const existing = await client.query(
+            `SELECT 1 FROM "Cart" WHERE "CustomerId" = $1 AND "MenuItemId" = $2`,
+            [cart.customerId, cart.menuItemId]
+        );
+
+        if (existing.rows.length > 0) {
+
+            await client.query(
+                `UPDATE "Cart" SET "Quantity" = "Quantity" + $1 WHERE "CustomerId" = $2 AND "MenuItemId" = $3`,
+                [cart.quantity, cart.customerId, cart.menuItemId]
+            );
+
+        } else {
+
+            await client.query(
+                `INSERT INTO "Cart" ("CustomerId", "MenuItemId", "Quantity") VALUES ($1, $2, $3)`,
+                [cart.customerId, cart.menuItemId, cart.quantity]
+            );
+
+        }
+
+        const result = await client.query(
+            `SELECT "CartId", "CustomerId", "MenuItemId", "Quantity", "CreatedAt"
+             FROM "Cart"
+             WHERE "CustomerId" = $1 AND "MenuItemId" = $2`,
+            [cart.customerId, cart.menuItemId]
+        );
+
+        await client.query("COMMIT");
+
+        return result.rows[0];
+
+    } catch (error) {
+
+        await client.query("ROLLBACK");
+        throw error;
+
+    } finally {
+
+        client.release();
+
+    }
 
 };
 
 export const getCart = async (customerId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT C."CartId", C."CustomerId", C."MenuItemId", M."BranchId", M."ItemName", M."Price",
+                C."Quantity", (M."Price" * C."Quantity") AS "TotalPrice", C."CreatedAt"
+         FROM "Cart" C
+         INNER JOIN "MenuItems" M ON C."MenuItemId" = M."MenuItemId"
+         WHERE C."CustomerId" = $1
+         ORDER BY C."CartId"`,
+        [customerId]
+    );
 
-    const result = await pool
-        .request()
-        .input("CustomerId", sql.Int, customerId)
-        .execute("sp_GetCart");
-
-    return result.recordset;
+    return result.rows;
 
 };
 
 export const updateCartQuantity = async (cartId, quantity) => {
 
-    const pool = await sql.connect();
+    const existing = await pool.query(`SELECT 1 FROM "Cart" WHERE "CartId" = $1`, [cartId]);
 
-    const result = await pool
-        .request()
-        .input("CartId", sql.Int, cartId)
-        .input("Quantity", sql.Int, quantity)
-        .execute("sp_UpdateCartQuantity");
+    if (existing.rows.length === 0) {
+        throw new Error("Cart item not found.");
+    }
 
-    return result.recordset[0];
+    await pool.query(`UPDATE "Cart" SET "Quantity" = $1 WHERE "CartId" = $2`, [quantity, cartId]);
+
+    const result = await pool.query(
+        `SELECT C."CartId", C."CustomerId", C."MenuItemId", M."ItemName", M."Price",
+                C."Quantity", (M."Price" * C."Quantity") AS "TotalPrice"
+         FROM "Cart" C
+         INNER JOIN "MenuItems" M ON C."MenuItemId" = M."MenuItemId"
+         WHERE C."CartId" = $1`,
+        [cartId]
+    );
+
+    return result.rows[0];
 
 };
 
 export const removeCartItem = async (cartId) => {
 
-    const pool = await sql.connect();
+    const existing = await pool.query(`SELECT 1 FROM "Cart" WHERE "CartId" = $1`, [cartId]);
 
-    const result = await pool
-        .request()
-        .input("CartId", sql.Int, cartId)
-        .execute("sp_RemoveCartItem");
+    if (existing.rows.length === 0) {
+        throw new Error("Cart item not found.");
+    }
 
-    return result.recordset[0];
+    await pool.query(`DELETE FROM "Cart" WHERE "CartId" = $1`, [cartId]);
+
+    return { Message: "Cart item removed successfully." };
 
 };
 
 export const clearCart = async (customerId) => {
 
-    const pool = await sql.connect();
+    await pool.query(`DELETE FROM "Cart" WHERE "CustomerId" = $1`, [customerId]);
 
-    const result = await pool
-        .request()
-        .input("CustomerId", sql.Int, customerId)
-        .execute("sp_ClearCart");
-
-    return result.recordset[0];
+    return { Message: "Cart cleared successfully." };
 
 };

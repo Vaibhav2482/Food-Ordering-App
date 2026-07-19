@@ -1,16 +1,17 @@
 import bcrypt from "bcrypt";
-import sql from "../config/db.js";
+import pool from "../config/db.js";
 
 export const adminLogin = async (email, password) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT A."AdminId", A."FullName", A."Email", A."Password", A."BranchId", B."BranchName"
+         FROM "Admins" A
+         LEFT JOIN "Branches" B ON A."BranchId" = B."BranchId"
+         WHERE A."Email" = $1 AND A."IsActive" = TRUE`,
+        [email]
+    );
 
-    const result = await pool
-        .request()
-        .input("Email", sql.NVarChar, email)
-        .execute("sp_AdminLogin");
-
-    const admin = result.recordset[0];
+    const admin = result.rows[0];
 
     if (!admin) {
         return {

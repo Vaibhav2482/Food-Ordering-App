@@ -1,93 +1,82 @@
-import sql from "../config/db.js";
+import pool from "../config/db.js";
 
 export const getAllCategories = async () => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(`
+        SELECT "CategoryId", "CategoryName", "Description", "ImageUrl", "DisplayOrder", "IsActive"
+        FROM "Categories"
+        ORDER BY "DisplayOrder"
+    `);
 
-    const result = await pool
-        .request()
-        .execute("sp_GetAllCategories");
-
-    return result.recordset;
+    return result.rows;
 };
 
 export const getCategoryById = async (categoryId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT "CategoryId", "CategoryName", "Description", "ImageUrl", "DisplayOrder", "IsActive"
+         FROM "Categories"
+         WHERE "CategoryId" = $1`,
+        [categoryId]
+    );
 
-    const result = await pool
-        .request()
-        .input("CategoryId", sql.Int, categoryId)
-        .execute("sp_GetCategoryById");
-
-    return result.recordset;
+    return result.rows;
 };
 
 export const checkCategoryExists = async (categoryName) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT "CategoryId"
+         FROM "Categories"
+         WHERE "CategoryName" = $1 AND "IsActive" = TRUE`,
+        [categoryName]
+    );
 
-    const result = await pool
-        .request()
-        .input("CategoryName", sql.NVarChar, categoryName)
-        .execute("sp_CheckCategoryExists");
-
-    return result.recordset;
+    return result.rows;
 };
 
 export const createCategory = async (category) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `INSERT INTO "Categories" ("CategoryName", "Description", "ImageUrl", "DisplayOrder", "IsActive", "CreatedAt", "UpdatedAt")
+         VALUES ($1, $2, $3, $4, TRUE, NOW(), NOW())
+         RETURNING "CategoryId"`,
+        [category.categoryName, category.description, category.imageUrl, category.displayOrder]
+    );
 
-    const result = await pool
-        .request()
-        .input("CategoryName", sql.NVarChar, category.categoryName)
-        .input("Description", sql.NVarChar, category.description)
-        .input("ImageUrl", sql.NVarChar, category.imageUrl)
-        .input("DisplayOrder", sql.Int, category.displayOrder)
-        .execute("sp_CreateCategory");
-
-    return result.recordset[0];
+    return result.rows[0];
 };
 
 export const checkCategoryExistsForUpdate = async (categoryId, categoryName) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT "CategoryId"
+         FROM "Categories"
+         WHERE "CategoryName" = $1 AND "CategoryId" <> $2 AND "IsActive" = TRUE`,
+        [categoryName, categoryId]
+    );
 
-    const result = await pool
-        .request()
-        .input("CategoryId", sql.Int, categoryId)
-        .input("CategoryName", sql.NVarChar, categoryName)
-        .execute("sp_CheckCategoryExistsForUpdate");
-
-    return result.recordset;
+    return result.rows;
 };
 
 export const updateCategory = async (category) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `UPDATE "Categories"
+         SET "CategoryName" = $1, "Description" = $2, "ImageUrl" = $3, "DisplayOrder" = $4, "IsActive" = $5, "UpdatedAt" = NOW()
+         WHERE "CategoryId" = $6`,
+        [category.categoryName, category.description, category.imageUrl, category.displayOrder, category.isActive, category.categoryId]
+    );
 
-    const result = await pool
-        .request()
-        .input("CategoryId", sql.Int, category.categoryId)
-        .input("CategoryName", sql.NVarChar, category.categoryName)
-        .input("Description", sql.NVarChar, category.description)
-        .input("ImageUrl", sql.NVarChar, category.imageUrl)
-        .input("DisplayOrder", sql.Int, category.displayOrder)
-        .input("IsActive", sql.Bit, category.isActive)
-        .execute("sp_UpdateCategory");
-
-    return result.recordset[0];
+    return { RowsAffected: result.rowCount };
 };
 
 export const deleteCategory = async (categoryId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `DELETE FROM "Categories" WHERE "CategoryId" = $1`,
+        [categoryId]
+    );
 
-    const result = await pool
-        .request()
-        .input("CategoryId", sql.Int, categoryId)
-        .execute("sp_DeleteCategory");
-
-    return result.recordset[0];
+    return { RowsAffected: result.rowCount };
 };

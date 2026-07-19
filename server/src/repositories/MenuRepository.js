@@ -1,111 +1,107 @@
-import sql from "../config/db.js";
+import pool from "../config/db.js";
 
-// Get All Menu Items
 export const getAllMenuItems = async (branchId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT M."MenuItemId", M."BranchId", M."CategoryId", C."CategoryName", M."ItemName", M."Description",
+                M."Price", M."ImageUrl", M."IsAvailable", M."IsPopular", M."IsActive", M."CreatedAt", M."UpdatedAt"
+         FROM "MenuItems" M
+         INNER JOIN "Categories" C ON M."CategoryId" = C."CategoryId"
+         WHERE C."IsActive" = TRUE AND M."BranchId" = $1
+         ORDER BY C."DisplayOrder", M."ItemName"`,
+        [branchId]
+    );
 
-    const result = await pool
-        .request()
-        .input("BranchId", sql.Int, branchId)
-        .execute("sp_GetAllMenuItems");
-
-    return result.recordset;
+    return result.rows;
 };
 
 export const getMenuItemById = async (menuItemId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT M."MenuItemId", M."BranchId", M."CategoryId", C."CategoryName", M."ItemName", M."Description",
+                M."Price", M."ImageUrl", M."IsAvailable", M."IsPopular", M."IsActive", M."CreatedAt", M."UpdatedAt"
+         FROM "MenuItems" M
+         INNER JOIN "Categories" C ON M."CategoryId" = C."CategoryId"
+         WHERE M."MenuItemId" = $1 AND C."IsActive" = TRUE`,
+        [menuItemId]
+    );
 
-    const result = await pool
-        .request()
-        .input("MenuItemId", sql.Int, menuItemId)
-        .execute("sp_GetMenuItemById");
-
-    return result.recordset;
+    return result.rows;
 };
 
-// Check Menu Item Exists
 export const checkMenuItemExists = async (itemName, branchId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT "MenuItemId" FROM "MenuItems" WHERE "ItemName" = $1 AND "BranchId" = $2`,
+        [itemName, branchId]
+    );
 
-    const result = await pool
-        .request()
-        .input("ItemName", sql.NVarChar, itemName)
-        .input("BranchId", sql.Int, branchId)
-        .execute("sp_CheckMenuItemExists");
-
-    return result.recordset;
+    return result.rows;
 };
 
-// Create Menu Item
 export const createMenuItem = async (menuItem) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `INSERT INTO "MenuItems"
+            ("BranchId", "CategoryId", "ItemName", "Description", "Price", "ImageUrl", "IsAvailable", "IsPopular", "IsActive")
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         RETURNING "MenuItemId"`,
+        [
+            menuItem.branchId,
+            menuItem.categoryId,
+            menuItem.itemName,
+            menuItem.description,
+            menuItem.price,
+            menuItem.imageUrl,
+            menuItem.isAvailable,
+            menuItem.isPopular,
+            menuItem.isActive
+        ]
+    );
 
-    const result = await pool
-        .request()
-        .input("BranchId", sql.Int, menuItem.branchId)
-        .input("CategoryId", sql.Int, menuItem.categoryId)
-        .input("ItemName", sql.NVarChar, menuItem.itemName)
-        .input("Description", sql.NVarChar, menuItem.description)
-        .input("Price", sql.Decimal(10, 2), menuItem.price)
-        .input("ImageUrl", sql.NVarChar, menuItem.imageUrl)
-        .input("IsAvailable", sql.Bit, menuItem.isAvailable)
-        .input("IsPopular", sql.Bit, menuItem.isPopular)
-        .input("IsActive", sql.Bit, menuItem.isActive)
-        .execute("sp_CreateMenuItem");
-
-    return result.recordset[0];
+    return result.rows[0];
 };
 
 export const updateMenuItem = async (menuItem) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `UPDATE "MenuItems"
+         SET "CategoryId" = $1, "ItemName" = $2, "Description" = $3, "Price" = $4, "ImageUrl" = $5,
+             "IsAvailable" = $6, "IsPopular" = $7, "IsActive" = $8, "UpdatedAt" = NOW()
+         WHERE "MenuItemId" = $9
+         RETURNING *`,
+        [
+            menuItem.categoryId,
+            menuItem.itemName,
+            menuItem.description,
+            menuItem.price,
+            menuItem.imageUrl ?? null,
+            menuItem.isAvailable,
+            menuItem.isPopular,
+            menuItem.isActive,
+            menuItem.menuItemId
+        ]
+    );
 
-    const result = await pool
-        .request()
-        .input("MenuItemId", sql.Int, menuItem.menuItemId)
-        .input("CategoryId", sql.Int, menuItem.categoryId)
-        .input("ItemName", sql.NVarChar(300), menuItem.itemName)
-        .input("Description", sql.NVarChar(2000), menuItem.description)
-        .input("Price", sql.Decimal(10, 2), menuItem.price)
-        .input("ImageUrl", sql.NVarChar(2000), menuItem.imageUrl)
-        .input("IsAvailable", sql.Bit, menuItem.isAvailable)
-        .input("IsPopular", sql.Bit, menuItem.isPopular)
-        .input("IsActive", sql.Bit, menuItem.isActive)
-        .execute("sp_UpdateMenuItem");
-
-    return result.recordset[0];
+    return result.rows[0];
 };
 
 export const getMenuItemByName = async (itemName, branchId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `SELECT * FROM "MenuItems" WHERE "ItemName" = $1 AND "BranchId" = $2`,
+        [itemName, branchId]
+    );
 
-    const result = await pool
-        .request()
-        .input("ItemName", sql.NVarChar(300), itemName)
-        .input("BranchId", sql.Int, branchId)
-        .query(`
-            SELECT *
-            FROM dbo.MenuItems
-            WHERE ItemName = @ItemName
-              AND BranchId = @BranchId
-        `);
-
-    return result.recordset[0];
+    return result.rows[0];
 };
 
 export const deleteMenuItem = async (menuItemId) => {
 
-    const pool = await sql.connect();
+    const result = await pool.query(
+        `DELETE FROM "MenuItems" WHERE "MenuItemId" = $1`,
+        [menuItemId]
+    );
 
-    const result = await pool
-        .request()
-        .input("MenuItemId", sql.Int, menuItemId)
-        .execute("sp_DeleteMenuItem");
-
-    return result.recordset[0];
+    return { RowsAffected: result.rowCount };
 };

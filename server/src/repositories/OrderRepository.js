@@ -191,7 +191,13 @@ export const getOrdersByCustomer = async (customerId) => {
 
     const result = await pool.query(
         `SELECT O."OrderId", O."BranchId", B."BranchName", O."CustomerId", O."AddressId", O."DeliveryType",
-                O."PaymentMethod", O."TotalAmount", O."OrderStatus", O."OrderNotes", O."OrderDate", O."TableNumber"
+                O."PaymentMethod", O."TotalAmount", O."OrderStatus", O."OrderNotes", O."OrderDate", O."TableNumber",
+                COALESCE(
+                    (SELECT json_agg(json_build_object('ItemName', OI."ItemName", 'Quantity', OI."Quantity")
+                              ORDER BY OI."OrderItemId")
+                     FROM "OrderItems" OI WHERE OI."OrderId" = O."OrderId"),
+                    '[]'
+                ) AS "Items"
          FROM "Orders" O
          INNER JOIN "Branches" B ON O."BranchId" = B."BranchId"
          WHERE O."CustomerId" = $1

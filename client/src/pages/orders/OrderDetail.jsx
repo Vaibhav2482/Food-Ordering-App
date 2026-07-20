@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-    Alert,
     Box,
     Button,
     Card,
@@ -11,14 +10,19 @@ import {
     StepLabel,
     Stepper,
     Stack,
+    Tooltip,
     Typography
 } from "@mui/material";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import StoreRoundedIcon from "@mui/icons-material/StoreRounded";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { cancelOrder, getOrderById } from "../../services/orderService";
+import { getPaymentByOrderId } from "../../services/paymentService";
 import { formatCurrency } from "../../utils/formatCurrency";
-import { getStatusSteps, STATUS_DESCRIPTION, isCancellable } from "../../utils/orderStatus";
+import { getStatusSteps, STATUS_DESCRIPTION, PAYMENT_TINT, isCancellable } from "../../utils/orderStatus";
+import OrderStatusBadge from "../../components/common/OrderStatusBadge";
 
 function OrderDetail() {
 
@@ -26,6 +30,7 @@ function OrderDetail() {
     const navigate = useNavigate();
 
     const [rows, setRows] = useState([]);
+    const [payment, setPayment] = useState(null);
     const [loading, setLoading] = useState(true);
     const [cancelling, setCancelling] = useState(false);
 
@@ -62,6 +67,20 @@ function OrderDetail() {
                 setRows(response.data);
             } else if (!silent) {
                 toast.error(response.message);
+            }
+
+            try {
+
+                const paymentResponse = await getPaymentByOrderId(id);
+
+                if (paymentResponse.success && paymentResponse.data?.length > 0) {
+                    setPayment(paymentResponse.data[0]);
+                }
+
+            } catch {
+
+                // No payment recorded yet (e.g. cash orders) — fine, card just won't show.
+
             }
 
         } catch {
@@ -140,8 +159,10 @@ function OrderDetail() {
 
     const order = rows[0];
     const isCancelled = order.OrderStatus === "Cancelled";
+    const isDelivered = order.OrderStatus === "Delivered";
     const statusSteps = getStatusSteps(order.DeliveryType);
     const activeStep = statusSteps.indexOf(order.OrderStatus);
+    const paymentTint = payment ? PAYMENT_TINT[payment.PaymentStatus] || PAYMENT_TINT.Pending : null;
 
     return (
 
@@ -151,84 +172,133 @@ function OrderDetail() {
                 Order #{order.OrderId}
             </Typography>
 
-            <Card sx={{ p: { xs: 2, md: 3 } }}>
+            {/* Hero: mirrors a "your order is X" status summary rather than
+                burying the headline status inside the stepper. */}
+            <Card sx={{ p: { xs: 2, sm: 2.5 }, mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
 
-                <Typography color="text.secondary" sx={{ mb: 2 }}>
-                    {new Date(order.OrderDate).toLocaleString()}
+                <OrderStatusBadge status={order.OrderStatus} size="large" />
+
+                <Typography variant="body2" color="text.secondary">
+                    {STATUS_DESCRIPTION[order.OrderStatus]}
                 </Typography>
 
-                {isCancelled ? (
+            </Card>
 
-                    <Alert severity="error" sx={{ mb: 3 }}>
-                        {STATUS_DESCRIPTION.Cancelled}
-                    </Alert>
+            {!isCancelled && !isDelivered && (
 
-                ) : (
+                <Card sx={{ p: { xs: 2, sm: 2.5 }, mb: 2 }}>
 
-                    <>
+                    {/* Vertical on phones — the horizontal stepper overflows
+                        and clips labels on narrow screens. */}
+                    <Box sx={{ display: { xs: "block", sm: "none" } }}>
 
-                        {/* Vertical on phones — the horizontal stepper overflows
-                            and clips labels on narrow screens. */}
-                        <Box sx={{ display: { xs: "block", sm: "none" }, mb: 2 }}>
+                        <Stepper
+                            activeStep={activeStep}
+                            orientation="vertical"
+                            sx={{ "& .MuiStepLabel-label": { fontSize: 14 } }}
+                        >
 
-                            <Stepper
-                                activeStep={activeStep}
-                                orientation="vertical"
-                                sx={{ "& .MuiStepLabel-label": { fontSize: 14 } }}
-                            >
+                            {statusSteps.map((step) => (
+                                <Step key={step}>
+                                    <StepLabel>{step}</StepLabel>
+                                </Step>
+                            ))}
 
-                                {statusSteps.map((step) => (
-                                    <Step key={step}>
-                                        <StepLabel>{step}</StepLabel>
-                                    </Step>
-                                ))}
+                        </Stepper>
 
-                            </Stepper>
+                    </Box>
 
-                        </Box>
+                    <Box sx={{ display: { xs: "none", sm: "block" } }}>
 
-                        <Box sx={{ display: { xs: "none", sm: "block" }, mb: 2 }}>
+                        <Stepper
+                            activeStep={activeStep}
+                            alternativeLabel
+                            sx={{ "& .MuiStepLabel-label": { fontSize: 12 } }}
+                        >
 
-                            <Stepper
-                                activeStep={activeStep}
-                                alternativeLabel
-                                sx={{ "& .MuiStepLabel-label": { fontSize: 12 } }}
-                            >
+                            {statusSteps.map((step) => (
+                                <Step key={step}>
+                                    <StepLabel>{step}</StepLabel>
+                                </Step>
+                            ))}
 
-                                {statusSteps.map((step) => (
-                                    <Step key={step}>
-                                        <StepLabel>{step}</StepLabel>
-                                    </Step>
-                                ))}
+                        </Stepper>
 
-                            </Stepper>
+                    </Box>
 
-                        </Box>
+                </Card>
 
-                        <Alert severity="info" sx={{ mb: 3 }}>
-                            {STATUS_DESCRIPTION[order.OrderStatus]}
-                        </Alert>
+            )}
 
-                    </>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 1, px: 0.5 }}>
+
+                <Typography fontWeight={700}>Detailed Bill</Typography>
+
+                <Typography variant="body2" color="text.secondary">
+                    {new Date(order.OrderDate).toLocaleString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "2-digit",
+                        hour: "numeric",
+                        minute: "2-digit",
+                        hour12: true
+                    })}
+                </Typography>
+
+            </Box>
+
+            <Card sx={{ p: { xs: 2, sm: 2.5 }, mb: 2 }}>
+
+                <Box sx={{ display: "flex", gap: 1.5, mb: 2 }}>
+
+                    <Box sx={{ width: 3, borderRadius: 1, bgcolor: "#F58220" }} />
+
+                    <Box>
+
+                        <Typography variant="body2" color="text.secondary">
+                            Order ID: <Typography component="span" fontWeight={600} color="text.primary">#{order.OrderId}</Typography>
+                        </Typography>
+
+                        <Typography variant="body2" color="text.secondary">
+                            Order Type: <Typography component="span" fontWeight={600} color="text.primary">
+                                {order.DeliveryType}{order.TableNumber ? ` (Table ${order.TableNumber})` : ""}
+                            </Typography>
+                        </Typography>
+
+                    </Box>
+
+                </Box>
+
+                {order.BranchName && (
+
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+
+                        <StoreRoundedIcon fontSize="small" sx={{ color: "#F58220" }} />
+
+                        <Typography fontWeight={700}>{order.BranchName}</Typography>
+
+                    </Box>
 
                 )}
 
-                <Divider sx={{ mb: 2 }} />
+                <Box sx={{ display: "flex", fontWeight: 700, fontSize: 13, color: "text.secondary", mb: 1 }}>
+                    <Box sx={{ flex: 1 }}>Item</Box>
+                    <Box sx={{ width: 40, textAlign: "center" }}>Qty</Box>
+                    <Box sx={{ width: 80, textAlign: "right" }}>Price</Box>
+                </Box>
 
-                <Stack spacing={1.5} divider={<Divider />}>
+                <Divider sx={{ mb: 1 }} />
+
+                <Stack spacing={1}>
 
                     {rows.map((row) => (
 
-                        <Box key={row.OrderItemId} sx={{ display: "flex", justifyContent: "space-between" }}>
-
-                            <Typography variant="body2">
-                                {row.ItemName} &times; {row.Quantity}
-                            </Typography>
-
-                            <Typography variant="body2" fontWeight={600}>
+                        <Box key={row.OrderItemId} sx={{ display: "flex", fontSize: 14 }}>
+                            <Box sx={{ flex: 1 }}>{row.ItemName}</Box>
+                            <Box sx={{ width: 40, textAlign: "center" }}>x{row.Quantity}</Box>
+                            <Box sx={{ width: 80, textAlign: "right", fontWeight: 600 }}>
                                 {formatCurrency(row.TotalPrice)}
-                            </Typography>
-
+                            </Box>
                         </Box>
 
                     ))}
@@ -237,58 +307,121 @@ function OrderDetail() {
 
                 <Divider sx={{ my: 2 }} />
 
-                <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+                    <Typography variant="body2" color="text.secondary">Item Total</Typography>
+                    <Typography variant="body2">{formatCurrency(order.SubTotal ?? order.TotalAmount)}</Typography>
+                </Box>
 
-                    <Typography fontWeight={700}>Total</Typography>
-                    <Typography fontWeight={700}>{formatCurrency(order.TotalAmount)}</Typography>
+                <Divider sx={{ my: 1.5 }} />
+
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+
+                    <Typography fontWeight={700} sx={{ color: "#F58220" }}>Total Bill</Typography>
+
+                    <Typography fontWeight={700} sx={{ color: "#F58220" }}>
+                        {formatCurrency(order.TotalAmount)}
+                    </Typography>
 
                 </Box>
 
-                {order.BranchName && (
-                    <Typography variant="body2" color="text.secondary">
-                        Branch: {order.BranchName}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.5 }}>
+
+                    <Typography variant="caption" color="text.secondary">
+                        Inclusive of taxes &amp; charges
                     </Typography>
-                )}
 
-                <Typography variant="body2" color="text.secondary">
-                    Order Type: {order.DeliveryType}
-                </Typography>
+                    {(order.CgstAmount || order.SgstAmount) && (
 
-                <Typography variant="body2" color="text.secondary">
-                    Payment: {order.PaymentMethod}
-                </Typography>
+                        <Tooltip title={`CGST @2.5%: ${formatCurrency(order.CgstAmount)} · SGST @2.5%: ${formatCurrency(order.SgstAmount)}`}>
+                            <InfoOutlinedIcon sx={{ fontSize: 14, color: "text.secondary" }} />
+                        </Tooltip>
+
+                    )}
+
+                </Box>
 
                 {order.OrderNotes && (
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
                         Notes: {order.OrderNotes}
                     </Typography>
                 )}
 
+            </Card>
+
+            {payment && (
+
+                <Card sx={{ p: { xs: 2, sm: 2.5 }, mb: 2 }}>
+
+                    <Typography fontWeight={700} sx={{ mb: 1.5 }}>Payment Info</Typography>
+
+                    <Box sx={{ display: "flex", gap: 1.5 }}>
+
+                        <Box sx={{ width: 3, borderRadius: 1, bgcolor: "#F58220" }} />
+
+                        <Box sx={{ flex: 1 }}>
+
+                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+
+                                <Box>
+
+                                    <Typography variant="body2">
+                                        Paid Amount: <Typography component="span" fontWeight={700} color="#F58220">
+                                            {formatCurrency(payment.Amount)}
+                                        </Typography>
+                                    </Typography>
+
+                                    <Typography variant="body2" color="text.secondary">
+                                        By: {payment.PaymentMethod}
+                                    </Typography>
+
+                                </Box>
+
+                                <Box
+                                    sx={{
+                                        px: 1.5,
+                                        py: 0.5,
+                                        borderRadius: 2,
+                                        bgcolor: paymentTint.bg,
+                                        color: paymentTint.fg,
+                                        fontWeight: 700,
+                                        fontSize: 13
+                                    }}
+                                >
+                                    {payment.PaymentStatus}
+                                </Box>
+
+                            </Box>
+
+                        </Box>
+
+                    </Box>
+
+                </Card>
+
+            )}
+
+            <Button
+                fullWidth
+                variant="outlined"
+                onClick={() => navigate(`/orders/${order.OrderId}/bill`)}
+            >
+                View Printable Bill
+            </Button>
+
+            {isCancellable(order.OrderStatus) && (
+
                 <Button
                     fullWidth
+                    color="error"
                     variant="outlined"
-                    sx={{ mt: 3 }}
-                    onClick={() => navigate(`/orders/${order.OrderId}/bill`)}
+                    sx={{ mt: 1.5 }}
+                    disabled={cancelling}
+                    onClick={handleCancel}
                 >
-                    View Bill
+                    {cancelling ? "Cancelling..." : "Cancel Order"}
                 </Button>
 
-                {isCancellable(order.OrderStatus) && (
-
-                    <Button
-                        fullWidth
-                        color="error"
-                        variant="outlined"
-                        sx={{ mt: 1.5 }}
-                        disabled={cancelling}
-                        onClick={handleCancel}
-                    >
-                        {cancelling ? "Cancelling..." : "Cancel Order"}
-                    </Button>
-
-                )}
-
-            </Card>
+            )}
 
         </Container>
 

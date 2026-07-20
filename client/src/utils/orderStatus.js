@@ -49,6 +49,24 @@ export const STATUS_ICON = {
     Cancelled: CancelRoundedIcon
 };
 
+// Soft icon-circle backgrounds + matching foreground, used for the status
+// badge shown on order cards and the detail hero (in place of a plain Chip).
+export const STATUS_TINT = {
+    Pending: { bg: "#FEF3C7", fg: "#B45309" },
+    Accepted: { bg: "#DBEAFE", fg: "#1D4ED8" },
+    Preparing: { bg: "#FFE8D1", fg: "#C2570A" },
+    Ready: { bg: "#EDE9FE", fg: "#6D28D9" },
+    "Out For Delivery": { bg: "#DBEAFE", fg: "#1D4ED8" },
+    Delivered: { bg: "#DCFCE7", fg: "#15803D" },
+    Cancelled: { bg: "#FEE2E2", fg: "#B91C1C" }
+};
+
+export const PAYMENT_TINT = {
+    Success: { bg: "#DCFCE7", fg: "#15803D" },
+    Pending: { bg: "#FEF3C7", fg: "#B45309" },
+    Failed: { bg: "#FEE2E2", fg: "#B91C1C" }
+};
+
 export const isCancellable = (status) => CANCELLABLE_STATUSES.includes(status);
 
 // "Out For Delivery" only applies to actual delivery orders - Dine In and

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Box, Card, Chip, CircularProgress, Container, Typography } from "@mui/material";
+import { Box, Button, Card, CircularProgress, Container, Divider, Typography } from "@mui/material";
 import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
+import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -8,7 +9,7 @@ import { useAuth } from "../../context/AuthContext";
 import { getOrdersByCustomer } from "../../services/orderService";
 import { formatCurrency } from "../../utils/formatCurrency";
 import EmptyState from "../../components/common/EmptyState";
-import { STATUS_COLOR, STATUS_ICON } from "../../utils/orderStatus";
+import OrderStatusBadge from "../../components/common/OrderStatusBadge";
 
 function OrderHistory() {
 
@@ -98,57 +99,95 @@ function OrderHistory() {
 
             ) : (
 
-                orders.map((order) => {
+                orders.map((order) => (
 
-                    const StatusIcon = STATUS_ICON[order.OrderStatus];
+                    <Card key={order.OrderId} sx={{ p: { xs: 2, sm: 2.5 }, mb: 2 }}>
 
-                    return (
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 2 }}>
 
-                    <Card
-                        key={order.OrderId}
-                        sx={{ p: 3, mb: 2, cursor: "pointer" }}
-                        onClick={() => navigate(`/orders/${order.OrderId}`)}
-                    >
+                            <Box sx={{ minWidth: 0 }}>
 
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-
-                            <Box>
-
-                                <Typography fontWeight={700}>Order #{order.OrderId}</Typography>
-
-                                <Typography variant="body2" color="text.secondary">
-                                    {new Date(order.OrderDate).toLocaleString()}
+                                <Typography fontWeight={700} sx={{ fontSize: 17 }}>
+                                    {order.BranchName || `Order #${order.OrderId}`}
                                 </Typography>
 
-                                {order.BranchName && (
-                                    <Typography variant="body2" color="text.secondary">
-                                        {order.BranchName}
-                                    </Typography>
-                                )}
+                                <Box sx={{ mt: 0.5 }}>
+
+                                    {(order.Items || []).map((item, index) => (
+
+                                        <Typography key={index} variant="body2" color="text.secondary">
+                                            {item.ItemName} (x{item.Quantity})
+                                        </Typography>
+
+                                    ))}
+
+                                </Box>
 
                             </Box>
 
-                            <Chip
-                                label={order.OrderStatus}
-                                color={STATUS_COLOR[order.OrderStatus] || "default"}
-                                icon={StatusIcon ? <StatusIcon fontSize="small" /> : undefined}
-                                size="small"
-                            />
+                            <OrderStatusBadge status={order.OrderStatus} />
 
                         </Box>
 
-                        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 0.5,
+                                mt: 1.5,
+                                cursor: "pointer",
+                                width: "fit-content"
+                            }}
+                            onClick={() => navigate(`/orders/${order.OrderId}`)}
+                        >
 
-                            <Typography color="text.secondary">{order.PaymentMethod}</Typography>
+                            <Typography fontWeight={700} sx={{ color: "#F58220" }}>
+                                {formatCurrency(order.TotalAmount)}
+                            </Typography>
 
-                            <Typography fontWeight={700}>{formatCurrency(order.TotalAmount)}</Typography>
+                            <ChevronRightRoundedIcon fontSize="small" sx={{ color: "#F58220" }} />
+
+                        </Box>
+
+                        <Divider sx={{ my: 1.5 }} />
+
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 1 }}>
+
+                            <Box>
+
+                                {order.TableNumber && (
+                                    <Typography variant="body2" color="text.secondary">
+                                        Table {order.TableNumber}
+                                    </Typography>
+                                )}
+
+                                <Typography variant="body2" color="text.secondary">
+                                    {new Date(order.OrderDate).toLocaleString("en-IN", {
+                                        day: "numeric",
+                                        month: "short",
+                                        year: "2-digit",
+                                        hour: "numeric",
+                                        minute: "2-digit",
+                                        hour12: true
+                                    })}
+                                </Typography>
+
+                            </Box>
+
+                            <Button
+                                size="small"
+                                variant="text"
+                                sx={{ fontWeight: 700 }}
+                                onClick={() => navigate(`/orders/${order.OrderId}`)}
+                            >
+                                View Bill
+                            </Button>
 
                         </Box>
 
                     </Card>
 
-                    );
-                })
+                ))
 
             )}
 

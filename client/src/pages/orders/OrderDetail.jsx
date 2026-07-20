@@ -6,9 +6,6 @@ import {
     CircularProgress,
     Container,
     Divider,
-    Step,
-    StepLabel,
-    Stepper,
     Stack,
     Tooltip,
     Typography
@@ -23,6 +20,7 @@ import { getPaymentByOrderId } from "../../services/paymentService";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { getStatusSteps, STATUS_DESCRIPTION, PAYMENT_TINT, isCancellable } from "../../utils/orderStatus";
 import OrderStatusBadge from "../../components/common/OrderStatusBadge";
+import OrderProgressTrack from "../../components/common/OrderProgressTrack";
 
 function OrderDetail() {
 
@@ -193,45 +191,13 @@ function OrderDetail() {
 
                         <Divider sx={{ my: 2 }} />
 
-                        {/* Vertical on phones — the horizontal stepper overflows
-                            and clips labels on narrow screens. */}
-                        <Box sx={{ display: { xs: "block", sm: "none" } }}>
+                        <Box sx={{ overflowX: "auto", "&::-webkit-scrollbar": { display: "none" } }}>
 
-                            <Stepper
-                                activeStep={activeStep}
-                                orientation="vertical"
-                                sx={{
-                                    "& .MuiStepLabel-label": { fontSize: 14 },
-                                    "& .MuiStep-root": { minHeight: 0 },
-                                    "& .MuiStepConnector-line": { minHeight: 16 }
-                                }}
-                            >
+                            <Box sx={{ minWidth: 380, px: 0.5 }}>
 
-                                {statusSteps.map((step) => (
-                                    <Step key={step}>
-                                        <StepLabel>{step}</StepLabel>
-                                    </Step>
-                                ))}
+                                <OrderProgressTrack steps={statusSteps} activeIndex={activeStep} />
 
-                            </Stepper>
-
-                        </Box>
-
-                        <Box sx={{ display: { xs: "none", sm: "block" } }}>
-
-                            <Stepper
-                                activeStep={activeStep}
-                                alternativeLabel
-                                sx={{ "& .MuiStepLabel-label": { fontSize: 12 } }}
-                            >
-
-                                {statusSteps.map((step) => (
-                                    <Step key={step}>
-                                        <StepLabel>{step}</StepLabel>
-                                    </Step>
-                                ))}
-
-                            </Stepper>
+                            </Box>
 
                         </Box>
 

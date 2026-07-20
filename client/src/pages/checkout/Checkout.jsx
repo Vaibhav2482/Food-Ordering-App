@@ -228,10 +228,25 @@ function Checkout() {
                     <ToggleButtonGroup
                         exclusive
                         fullWidth
-                        color="primary"
                         value={deliveryType}
                         onChange={(event, value) => value && setDeliveryType(value)}
-                        sx={{ mb: { xs: 2.5, md: 4 } }}
+                        sx={{
+                            mb: { xs: 2.5, md: 4 },
+                            bgcolor: "#F3F4F6",
+                            borderRadius: 5,
+                            p: 0.5,
+                            "& .MuiToggleButton-root": {
+                                border: "none",
+                                borderRadius: 5,
+                                fontWeight: 700,
+                                color: "text.secondary",
+                                "&.Mui-selected": {
+                                    bgcolor: "#FFE8D1",
+                                    color: "#F58220",
+                                    "&:hover": { bgcolor: "#FFE8D1" }
+                                }
+                            }
+                        }}
                     >
 
                         <ToggleButton value="Dine In">Dine In</ToggleButton>

@@ -172,63 +172,74 @@ function OrderDetail() {
                 Order #{order.OrderId}
             </Typography>
 
-            {/* Hero: mirrors a "your order is X" status summary rather than
-                burying the headline status inside the stepper. */}
-            <Card sx={{ p: { xs: 2, sm: 2.5 }, mb: 2, display: "flex", alignItems: "center", gap: 2 }}>
+            {/* Hero + stepper live in one card now — two stacked cards with
+                their own borders/shadows read as visual clutter for what is
+                really one continuous "here's where your order stands" idea. */}
+            <Card sx={{ p: { xs: 2, sm: 2.5 }, mb: 2 }}>
 
-                <OrderStatusBadge status={order.OrderStatus} size="large" />
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
 
-                <Typography variant="body2" color="text.secondary">
-                    {STATUS_DESCRIPTION[order.OrderStatus]}
-                </Typography>
+                    <OrderStatusBadge status={order.OrderStatus} size="large" />
+
+                    <Typography variant="body2" color="text.secondary">
+                        {STATUS_DESCRIPTION[order.OrderStatus]}
+                    </Typography>
+
+                </Box>
+
+                {!isCancelled && !isDelivered && (
+
+                    <>
+
+                        <Divider sx={{ my: 2 }} />
+
+                        {/* Vertical on phones — the horizontal stepper overflows
+                            and clips labels on narrow screens. */}
+                        <Box sx={{ display: { xs: "block", sm: "none" } }}>
+
+                            <Stepper
+                                activeStep={activeStep}
+                                orientation="vertical"
+                                sx={{
+                                    "& .MuiStepLabel-label": { fontSize: 14 },
+                                    "& .MuiStep-root": { minHeight: 0 },
+                                    "& .MuiStepConnector-line": { minHeight: 16 }
+                                }}
+                            >
+
+                                {statusSteps.map((step) => (
+                                    <Step key={step}>
+                                        <StepLabel>{step}</StepLabel>
+                                    </Step>
+                                ))}
+
+                            </Stepper>
+
+                        </Box>
+
+                        <Box sx={{ display: { xs: "none", sm: "block" } }}>
+
+                            <Stepper
+                                activeStep={activeStep}
+                                alternativeLabel
+                                sx={{ "& .MuiStepLabel-label": { fontSize: 12 } }}
+                            >
+
+                                {statusSteps.map((step) => (
+                                    <Step key={step}>
+                                        <StepLabel>{step}</StepLabel>
+                                    </Step>
+                                ))}
+
+                            </Stepper>
+
+                        </Box>
+
+                    </>
+
+                )}
 
             </Card>
-
-            {!isCancelled && !isDelivered && (
-
-                <Card sx={{ p: { xs: 2, sm: 2.5 }, mb: 2 }}>
-
-                    {/* Vertical on phones — the horizontal stepper overflows
-                        and clips labels on narrow screens. */}
-                    <Box sx={{ display: { xs: "block", sm: "none" } }}>
-
-                        <Stepper
-                            activeStep={activeStep}
-                            orientation="vertical"
-                            sx={{ "& .MuiStepLabel-label": { fontSize: 14 } }}
-                        >
-
-                            {statusSteps.map((step) => (
-                                <Step key={step}>
-                                    <StepLabel>{step}</StepLabel>
-                                </Step>
-                            ))}
-
-                        </Stepper>
-
-                    </Box>
-
-                    <Box sx={{ display: { xs: "none", sm: "block" } }}>
-
-                        <Stepper
-                            activeStep={activeStep}
-                            alternativeLabel
-                            sx={{ "& .MuiStepLabel-label": { fontSize: 12 } }}
-                        >
-
-                            {statusSteps.map((step) => (
-                                <Step key={step}>
-                                    <StepLabel>{step}</StepLabel>
-                                </Step>
-                            ))}
-
-                        </Stepper>
-
-                    </Box>
-
-                </Card>
-
-            )}
 
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 1, px: 0.5 }}>
 

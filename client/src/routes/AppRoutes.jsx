@@ -16,6 +16,7 @@ import OrderBill from "../pages/orders/OrderBill";
 import Profile from "../pages/profile/Profile";
 import Help from "../pages/help/Help";
 import HelpTopic from "../pages/help/HelpTopic";
+import PaymentHistory from "../pages/payments/PaymentHistory";
 import NotFound from "../pages/not-found/NotFound";
 
 function AppRoutes() {
@@ -88,6 +89,15 @@ function AppRoutes() {
                         element={
                             <ProtectedRoute>
                                 <Profile />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="payments"
+                        element={
+                            <ProtectedRoute>
+                                <PaymentHistory />
                             </ProtectedRoute>
                         }
                     />

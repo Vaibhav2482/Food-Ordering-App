@@ -37,3 +37,20 @@ export const getPaymentByOrderId = async (orderId) => {
     return result.rows;
 
 };
+
+export const getPaymentsByCustomer = async (customerId) => {
+
+    const result = await pool.query(
+        `SELECT P."PaymentId", P."OrderId", P."PaymentMethod", P."Amount", P."PaymentStatus",
+                P."TransactionId", P."PaymentDate", B."BranchName"
+         FROM "Payments" P
+         INNER JOIN "Orders" O ON P."OrderId" = O."OrderId"
+         INNER JOIN "Branches" B ON O."BranchId" = B."BranchId"
+         WHERE O."CustomerId" = $1
+         ORDER BY P."PaymentDate" DESC`,
+        [customerId]
+    );
+
+    return result.rows;
+
+};

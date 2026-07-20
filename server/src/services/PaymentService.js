@@ -63,3 +63,15 @@ export const getPaymentByOrderId = async (orderId) => {
     };
 
 };
+
+export const getPaymentsByCustomer = async (customerId) => {
+
+    const payments = await paymentRepository.getPaymentsByCustomer(customerId);
+
+    return {
+        success: true,
+        message: "Payment history fetched successfully.",
+        data: payments
+    };
+
+};

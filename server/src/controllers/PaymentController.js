@@ -72,6 +72,24 @@ export const getPaymentByOrderId = asyncHandler(async (req, res) => {
 
 });
 
+export const getPaymentsByCustomer = asyncHandler(async (req, res) => {
+
+    const { customerId } = req.params;
+
+    if (req.user.role !== "admin" && String(req.user.id) !== String(customerId)) {
+        return errorResponse(res, "You are not authorized to view this payment history.", 403);
+    }
+
+    const result = await PaymentService.getPaymentsByCustomer(customerId);
+
+    return successResponse(
+        res,
+        result.data,
+        result.message
+    );
+
+});
+
 export const createRazorpayOrder = asyncHandler(async (req, res) => {
 
     const { orderId } = req.body;

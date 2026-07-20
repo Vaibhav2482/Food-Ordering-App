@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Box, Button, Card, Container, Divider, TextField, Typography } from "@mui/material";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import HelpOutlineRoundedIcon from "@mui/icons-material/HelpOutlineRounded";
+import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -118,6 +119,32 @@ function Profile() {
             <AddressBook />
 
             <Card sx={{ mt: { xs: 3, md: 4 } }}>
+
+                <Box
+                    onClick={() => navigate("/payments")}
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        px: 2.5,
+                        py: 2,
+                        cursor: "pointer",
+                        borderBottom: "1px solid",
+                        borderColor: "divider"
+                    }}
+                >
+
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+
+                        <ReceiptLongRoundedIcon sx={{ color: "#F58220" }} />
+
+                        <Typography fontWeight={500}>Payment History</Typography>
+
+                    </Box>
+
+                    <ChevronRightRoundedIcon sx={{ color: "text.secondary" }} />
+
+                </Box>
 
                 <Box
                     onClick={() => navigate("/help")}

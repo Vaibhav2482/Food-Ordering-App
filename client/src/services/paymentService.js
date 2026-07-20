@@ -24,6 +24,14 @@ export const getPaymentByOrderId = async (orderId) => {
 
 };
 
+export const getPaymentsByCustomer = async (customerId) => {
+
+    const response = await axiosClient.get(`/payments/customer/${customerId}`);
+
+    return response.data;
+
+};
+
 export const createRazorpayOrder = async (orderId) => {
 
     const response = await axiosClient.post("/payments/razorpay/create-order", { orderId });

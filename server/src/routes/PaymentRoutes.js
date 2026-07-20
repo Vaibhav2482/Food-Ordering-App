@@ -3,6 +3,7 @@ import express from "express";
 import {
     createPayment,
     getPaymentByOrderId,
+    getPaymentsByCustomer,
     createRazorpayOrder,
     verifyRazorpayPayment
 } from "../controllers/PaymentController.js";
@@ -15,6 +16,8 @@ router.use(authenticate);
 router.post("/", createPayment);
 
 router.get("/order/:orderId", getPaymentByOrderId);
+
+router.get("/customer/:customerId", getPaymentsByCustomer);
 
 router.post("/razorpay/create-order", createRazorpayOrder);
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Chip, Container, Divider, InputAdornment, Stack, TextField, Typography, useMediaQuery, useTheme } from "@mui/material";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
 import RestaurantMenuRoundedIcon from "@mui/icons-material/RestaurantMenuRounded";
 import toast from "react-hot-toast";
 
@@ -10,6 +11,7 @@ import LoadingSkeleton from "../../components/common/LoadingSkeleton";
 import EmptyState from "../../components/common/EmptyState";
 import CartBar from "../../components/common/CartBar";
 import MenuItemRow from "./MenuItemRow";
+import MenuItemDetailSheet from "./MenuItemDetailSheet";
 import { useBranch } from "../../context/BranchContext";
 
 function Menu() {
@@ -25,6 +27,8 @@ function Menu() {
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState("");
     const [activeCategoryId, setActiveCategoryId] = useState(null);
+    const [bestsellersOnly, setBestsellersOnly] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
 
     const sectionRefs = useRef({});
     const chipRefs = useRef({});
@@ -82,12 +86,18 @@ function Menu() {
                 items: menuItems.filter((item) =>
                     item.CategoryId === category.CategoryId &&
                     item.IsActive &&
-                    item.ItemName.toLowerCase().includes(search)
+                    item.ItemName.toLowerCase().includes(search) &&
+                    (!bestsellersOnly || item.IsPopular)
                 )
             }))
             .filter((category) => category.items.length > 0);
 
-    }, [categories, menuItems, searchText]);
+    }, [categories, menuItems, searchText, bestsellersOnly]);
+
+    const totalItemCount = useMemo(
+        () => sections.reduce((sum, section) => sum + section.items.length, 0),
+        [sections]
+    );
 
     useEffect(() => {
 
@@ -144,31 +154,59 @@ function Menu() {
 
         <Container maxWidth="md" sx={{ py: { xs: 2.5, md: 4 } }}>
 
-            <Typography variant="h4" sx={{ mb: { xs: 2, md: 3 } }}>
-                Our Menu
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", mb: { xs: 2, md: 3 }, flexWrap: "wrap", gap: 1 }}>
 
-            <TextField
-                fullWidth
-                placeholder="Search for chai, snacks..."
-                value={searchText}
-                onChange={(event) => setSearchText(event.target.value)}
-                sx={{
-                    mb: { xs: 2, md: 3 },
-                    "& .MuiOutlinedInput-root": {
-                        borderRadius: 5,
-                        bgcolor: "#F3F4F6",
-                        "& fieldset": { border: "none" }
-                    }
-                }}
-                InputProps={{
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <SearchRoundedIcon sx={{ color: "#F58220" }} />
-                        </InputAdornment>
-                    )
-                }}
-            />
+                <Typography variant="h4">
+                    Our Menu
+                </Typography>
+
+                {!loading && (
+                    <Typography variant="body2" color="text.secondary">
+                        {totalItemCount} {totalItemCount === 1 ? "item" : "items"}
+                    </Typography>
+                )}
+
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 1.5, mb: { xs: 2, md: 3 }, alignItems: "center" }}>
+
+                <TextField
+                    fullWidth
+                    placeholder="Search for chai, snacks..."
+                    value={searchText}
+                    onChange={(event) => setSearchText(event.target.value)}
+                    sx={{
+                        "& .MuiOutlinedInput-root": {
+                            borderRadius: 5,
+                            bgcolor: "#F3F4F6",
+                            "& fieldset": { border: "none" }
+                        }
+                    }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchRoundedIcon sx={{ color: "#F58220" }} />
+                            </InputAdornment>
+                        )
+                    }}
+                />
+
+                <Chip
+                    icon={<LocalFireDepartmentRoundedIcon sx={{ fontSize: 18 }} />}
+                    label="Bestsellers"
+                    onClick={() => setBestsellersOnly((prev) => !prev)}
+                    sx={{
+                        flexShrink: 0,
+                        height: 40,
+                        fontWeight: 700,
+                        border: "none",
+                        bgcolor: bestsellersOnly ? "#FFE8D1" : "#F3F4F6",
+                        color: bestsellersOnly ? "#F58220" : "text.secondary",
+                        "& .MuiChip-icon": { color: bestsellersOnly ? "#F58220" : "text.secondary" }
+                    }}
+                />
+
+            </Box>
 
             {loading ? (
 
@@ -179,7 +217,11 @@ function Menu() {
                 <EmptyState
                     icon={<RestaurantMenuRoundedIcon sx={{ fontSize: 56, color: "text.secondary" }} />}
                     title="No items found"
-                    subtitle="Try a different search."
+                    subtitle={
+                        bestsellersOnly
+                            ? "No bestsellers match your search — try clearing the filter."
+                            : "Try a different search."
+                    }
                 />
 
             ) : (
@@ -236,16 +278,24 @@ function Menu() {
                             sx={{ scrollMarginTop: NAV_OFFSET, mb: 2 }}
                         >
 
-                            <Typography variant="h6" fontWeight={700} sx={{ pt: 1 }}>
-                                {section.CategoryName}
-                            </Typography>
+                            <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, pt: 1 }}>
+
+                                <Typography variant="h6" fontWeight={700}>
+                                    {section.CategoryName}
+                                </Typography>
+
+                                <Typography variant="body2" color="text.secondary">
+                                    ({section.items.length})
+                                </Typography>
+
+                            </Box>
 
                             <Divider sx={{ mt: 1 }} />
 
                             <Stack divider={<Divider />}>
 
                                 {section.items.map((item) => (
-                                    <MenuItemRow key={item.MenuItemId} item={item} />
+                                    <MenuItemRow key={item.MenuItemId} item={item} onSelect={setSelectedItem} />
                                 ))}
 
                             </Stack>
@@ -263,6 +313,12 @@ function Menu() {
         </Container>
 
         <CartBar />
+
+        <MenuItemDetailSheet
+            item={selectedItem}
+            open={Boolean(selectedItem)}
+            onClose={() => setSelectedItem(null)}
+        />
 
         </>
 

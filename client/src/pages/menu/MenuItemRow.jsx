@@ -4,6 +4,7 @@ import RemoveRoundedIcon from "@mui/icons-material/RemoveRounded";
 
 import { useCart } from "../../context/CartContext";
 import { formatCurrency } from "../../utils/formatCurrency";
+import { getCategoryIcon } from "../../utils/categoryIcon";
 
 const TINT_BG = "#FFE8D1";
 const TINT_FG = "#F58220";
@@ -65,12 +66,14 @@ function AddControl({ quantity, disabled }) {
 
 }
 
-function MenuItemRow({ item }) {
+function MenuItemRow({ item, onSelect }) {
 
     const { items, addItem, updateQuantity, removeItem } = useCart();
 
     const cartItem = items.find((cartLine) => cartLine.menuItemId === item.MenuItemId);
     const quantity = cartItem?.quantity ?? 0;
+
+    const CategoryIcon = getCategoryIcon(item.CategoryName);
 
     const handleIncrement = () => addItem(item, 1);
 
@@ -91,13 +94,15 @@ function MenuItemRow({ item }) {
     return (
 
         <Box
+            onClick={() => onSelect?.(item)}
             sx={{
                 display: "flex",
                 alignItems: "flex-start",
                 justifyContent: "space-between",
                 gap: 2,
                 py: { xs: 2, sm: 2.5 },
-                opacity: item.IsAvailable ? 1 : 0.55
+                opacity: item.IsAvailable ? 1 : 0.55,
+                cursor: onSelect ? "pointer" : "default"
             }}
         >
 
@@ -145,16 +150,20 @@ function MenuItemRow({ item }) {
 
             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, flexShrink: 0 }}>
 
-                {item.ImageUrl && (
+                <Box
+                    sx={{
+                        width: { xs: 84, sm: 100 },
+                        height: { xs: 72, sm: 84 },
+                        borderRadius: 3,
+                        overflow: "hidden",
+                        bgcolor: item.ImageUrl ? "transparent" : "#FFF3E4",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                    }}
+                >
 
-                    <Box
-                        sx={{
-                            width: { xs: 84, sm: 100 },
-                            height: { xs: 72, sm: 84 },
-                            borderRadius: 3,
-                            overflow: "hidden"
-                        }}
-                    >
+                    {item.ImageUrl ? (
 
                         <Box
                             component="img"
@@ -163,12 +172,18 @@ function MenuItemRow({ item }) {
                             sx={{ width: "100%", height: "100%", objectFit: "cover" }}
                         />
 
-                    </Box>
+                    ) : (
 
-                )}
+                        <CategoryIcon sx={{ fontSize: 32, color: "#F58220", opacity: 0.45 }} />
+
+                    )}
+
+                </Box>
 
                 <Box
                     onClick={(event) => {
+
+                        event.stopPropagation();
 
                         if (item.IsAvailable === false) {
                             return;

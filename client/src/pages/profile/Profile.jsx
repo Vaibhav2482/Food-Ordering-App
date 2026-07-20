@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Box, Button, Card, Container, Divider, TextField, Typography } from "@mui/material";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import HelpOutlineRoundedIcon from "@mui/icons-material/HelpOutlineRounded";
+import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -115,12 +117,40 @@ function Profile() {
 
             <AddressBook />
 
+            <Card sx={{ mt: { xs: 3, md: 4 } }}>
+
+                <Box
+                    onClick={() => navigate("/help")}
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        px: 2.5,
+                        py: 2,
+                        cursor: "pointer"
+                    }}
+                >
+
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+
+                        <HelpOutlineRoundedIcon sx={{ color: "#F58220" }} />
+
+                        <Typography fontWeight={500}>Help</Typography>
+
+                    </Box>
+
+                    <ChevronRightRoundedIcon sx={{ color: "text.secondary" }} />
+
+                </Box>
+
+            </Card>
+
             <Button
                 fullWidth
                 variant="outlined"
                 color="error"
                 startIcon={<LogoutRoundedIcon />}
-                sx={{ mt: { xs: 3, md: 4 } }}
+                sx={{ mt: 2 }}
                 onClick={handleLogout}
             >
                 Logout

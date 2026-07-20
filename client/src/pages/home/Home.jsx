@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Avatar, Box, Button, Card, Container, Divider, Grid, Stack, Typography } from "@mui/material";
+import { Avatar, Box, Button, Card, Container, Grid, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -14,7 +14,7 @@ import { getAllMenu } from "../../services/menuService";
 import { useBranch } from "../../context/BranchContext";
 import LoadingSkeleton from "../../components/common/LoadingSkeleton";
 import CartBar from "../../components/common/CartBar";
-import MenuItemRow from "../menu/MenuItemRow";
+import PopularItemCard from "./PopularItemCard";
 import { getCategoryIcon } from "../../utils/categoryIcon";
 import logo from "../../assets/logo/chaichakhna-logo.jpg";
 import BranchBar from "./BranchBar";
@@ -283,17 +283,13 @@ function Home() {
                         Popular Right Now
                     </Typography>
 
-                    <Card sx={{ px: { xs: 2, md: 3 } }}>
+                    <Box sx={{ display: "flex", gap: 1.5, overflowX: "auto", pb: 0.5, "&::-webkit-scrollbar": { display: "none" } }}>
 
-                        <Stack divider={<Divider />}>
+                        {popularItems.map((item) => (
+                            <PopularItemCard key={item.MenuItemId} item={item} />
+                        ))}
 
-                            {popularItems.map((item) => (
-                                <MenuItemRow key={item.MenuItemId} item={item} />
-                            ))}
-
-                        </Stack>
-
-                    </Card>
+                    </Box>
 
                     <Box sx={{ textAlign: "center", mt: 4 }}>
 

@@ -153,11 +153,18 @@ function Menu() {
                 placeholder="Search for chai, snacks..."
                 value={searchText}
                 onChange={(event) => setSearchText(event.target.value)}
-                sx={{ mb: { xs: 2, md: 3 } }}
+                sx={{
+                    mb: { xs: 2, md: 3 },
+                    "& .MuiOutlinedInput-root": {
+                        borderRadius: 5,
+                        bgcolor: "#F3F4F6",
+                        "& fieldset": { border: "none" }
+                    }
+                }}
                 InputProps={{
                     startAdornment: (
                         <InputAdornment position="start">
-                            <SearchRoundedIcon />
+                            <SearchRoundedIcon sx={{ color: "#F58220" }} />
                         </InputAdornment>
                     )
                 }}
@@ -194,18 +201,29 @@ function Menu() {
                         }}
                     >
 
-                        {sections.map((section) => (
+                        {sections.map((section) => {
 
-                            <Chip
-                                key={section.CategoryId}
-                                ref={(el) => { chipRefs.current[section.CategoryId] = el; }}
-                                label={section.CategoryName}
-                                color={activeCategoryId === section.CategoryId ? "primary" : "default"}
-                                onClick={() => scrollToSection(section.CategoryId)}
-                                sx={{ flexShrink: 0 }}
-                            />
+                            const active = activeCategoryId === section.CategoryId;
 
-                        ))}
+                            return (
+
+                                <Chip
+                                    key={section.CategoryId}
+                                    ref={(el) => { chipRefs.current[section.CategoryId] = el; }}
+                                    label={section.CategoryName}
+                                    onClick={() => scrollToSection(section.CategoryId)}
+                                    sx={{
+                                        flexShrink: 0,
+                                        fontWeight: 700,
+                                        border: "none",
+                                        bgcolor: active ? "#FFE8D1" : "transparent",
+                                        color: active ? "#F58220" : "text.secondary"
+                                    }}
+                                />
+
+                            );
+
+                        })}
 
                     </Stack>
 

@@ -5,29 +5,30 @@ import RemoveRoundedIcon from "@mui/icons-material/RemoveRounded";
 import { useCart } from "../../context/CartContext";
 import { formatCurrency } from "../../utils/formatCurrency";
 
-function AddControl({ quantity, disabled, onIncrement, onDecrement }) {
+const TINT_BG = "#FFE8D1";
+const TINT_FG = "#F58220";
+
+function AddControl({ quantity, disabled }) {
 
     if (quantity === 0) {
 
         return (
 
-            <Typography
-                component="button"
-                disabled={disabled}
-                onClick={onIncrement}
+            <Box
                 sx={{
-                    all: "unset",
-                    width: "100%",
-                    textAlign: "center",
+                    px: 2.5,
+                    py: 0.75,
+                    borderRadius: 5,
+                    bgcolor: disabled ? "action.disabledBackground" : TINT_BG,
+                    color: disabled ? "text.disabled" : TINT_FG,
                     fontWeight: 700,
-                    fontSize: 12,
-                    color: disabled ? "text.disabled" : "#F58220",
-                    cursor: disabled ? "default" : "pointer",
-                    letterSpacing: 0.5
+                    fontSize: 13,
+                    letterSpacing: 0.4,
+                    textAlign: "center"
                 }}
             >
                 ADD
-            </Typography>
+            </Box>
 
         );
 
@@ -35,18 +36,27 @@ function AddControl({ quantity, disabled, onIncrement, onDecrement }) {
 
     return (
 
-        <Box sx={{ display: "flex", alignItems: "center", width: "100%", justifyContent: "space-between", px: 0.25 }}>
+        <Box
+            sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+                borderRadius: 5,
+                bgcolor: TINT_BG,
+                px: 0.5
+            }}
+        >
 
-            <IconButton size="small" onClick={onDecrement} sx={{ color: "#F58220", p: 0.25 }}>
-                <RemoveRoundedIcon sx={{ fontSize: 16 }} />
+            <IconButton size="small" sx={{ color: TINT_FG, p: 0.5 }} data-decrement>
+                <RemoveRoundedIcon sx={{ fontSize: 18 }} />
             </IconButton>
 
-            <Typography fontWeight={700} fontSize={12} color="#F58220">
+            <Typography fontWeight={700} fontSize={14} color={TINT_FG} sx={{ minWidth: 16, textAlign: "center" }}>
                 {quantity}
             </Typography>
 
-            <IconButton size="small" onClick={onIncrement} sx={{ color: "#F58220", p: 0.25 }}>
-                <AddRoundedIcon sx={{ fontSize: 16 }} />
+            <IconButton size="small" sx={{ color: TINT_FG, p: 0.5 }} data-increment>
+                <AddRoundedIcon sx={{ fontSize: 18 }} />
             </IconButton>
 
         </Box>
@@ -83,9 +93,10 @@ function MenuItemRow({ item }) {
         <Box
             sx={{
                 display: "flex",
-                alignItems: item.ImageUrl ? "flex-start" : "center",
-                gap: { xs: 1.5, sm: 2 },
-                py: { xs: 1.5, sm: 2.5 },
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: 2,
+                py: { xs: 2, sm: 2.5 },
                 opacity: item.IsAvailable ? 1 : 0.55
             }}
         >
@@ -94,7 +105,7 @@ function MenuItemRow({ item }) {
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
 
-                    <Typography fontWeight={700}>
+                    <Typography fontWeight={700} fontSize={16}>
                         {item.ItemName}
                     </Typography>
 
@@ -108,23 +119,13 @@ function MenuItemRow({ item }) {
 
                 </Box>
 
-                <Typography
-                    sx={{
-                        mt: 0.5,
-                        fontWeight: 700,
-                        color: "#F58220"
-                    }}
-                >
-                    {formatCurrency(item.Price)}
-                </Typography>
-
                 {item.Description && (
 
                     <Typography
                         variant="body2"
                         color="text.secondary"
                         sx={{
-                            mt: 0.75,
+                            mt: 0.5,
                             display: "-webkit-box",
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: "vertical",
@@ -136,16 +137,20 @@ function MenuItemRow({ item }) {
 
                 )}
 
+                <Typography sx={{ mt: 1, fontWeight: 700, fontSize: 15, color: TINT_FG }}>
+                    {formatCurrency(item.Price)}
+                </Typography>
+
             </Box>
 
-            {item.ImageUrl ? (
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, flexShrink: 0 }}>
 
-                <Box sx={{ position: "relative", width: { xs: 84, sm: 112 }, flexShrink: 0 }}>
+                {item.ImageUrl && (
 
                     <Box
                         sx={{
-                            width: { xs: 84, sm: 112 },
-                            height: { xs: 72, sm: 96 },
+                            width: { xs: 84, sm: 100 },
+                            height: { xs: 72, sm: 84 },
                             borderRadius: 3,
                             overflow: "hidden"
                         }}
@@ -160,63 +165,32 @@ function MenuItemRow({ item }) {
 
                     </Box>
 
-                    <Box
-                        sx={{
-                            position: "absolute",
-                            bottom: -12,
-                            left: "50%",
-                            transform: "translateX(-50%)",
-                            bgcolor: "background.paper",
-                            border: "1px solid",
-                            borderColor: "divider",
-                            borderRadius: 2.5,
-                            boxShadow: "0 2px 8px rgba(0,0,0,.12)",
-                            display: "flex",
-                            alignItems: "center",
-                            height: 28,
-                            minWidth: 72,
-                            justifyContent: "center"
-                        }}
-                    >
-
-                        <AddControl
-                            quantity={quantity}
-                            disabled={!item.IsAvailable}
-                            onIncrement={handleIncrement}
-                            onDecrement={handleDecrement}
-                        />
-
-                    </Box>
-
-                </Box>
-
-            ) : (
+                )}
 
                 <Box
-                    sx={{
-                        flexShrink: 0,
-                        bgcolor: "background.paper",
-                        border: "1px solid",
-                        borderColor: "divider",
-                        borderRadius: 2.5,
-                        display: "flex",
-                        alignItems: "center",
-                        height: 30,
-                        minWidth: 78,
-                        justifyContent: "center"
+                    onClick={(event) => {
+
+                        if (item.IsAvailable === false) {
+                            return;
+                        }
+
+                        const target = event.target.closest("[data-increment],[data-decrement]");
+
+                        if (target) {
+                            target.hasAttribute("data-increment") ? handleIncrement() : handleDecrement();
+                        } else if (quantity === 0) {
+                            handleIncrement();
+                        }
+
                     }}
+                    sx={{ cursor: item.IsAvailable === false ? "default" : "pointer" }}
                 >
 
-                    <AddControl
-                        quantity={quantity}
-                        disabled={!item.IsAvailable}
-                        onIncrement={handleIncrement}
-                        onDecrement={handleDecrement}
-                    />
+                    <AddControl quantity={quantity} disabled={!item.IsAvailable} />
 
                 </Box>
 
-            )}
+            </Box>
 
         </Box>
 

@@ -14,6 +14,8 @@ import OrderHistory from "../pages/orders/OrderHistory";
 import OrderDetail from "../pages/orders/OrderDetail";
 import OrderBill from "../pages/orders/OrderBill";
 import Profile from "../pages/profile/Profile";
+import Help from "../pages/help/Help";
+import HelpTopic from "../pages/help/HelpTopic";
 import NotFound from "../pages/not-found/NotFound";
 
 function AppRoutes() {
@@ -89,6 +91,10 @@ function AppRoutes() {
                             </ProtectedRoute>
                         }
                     />
+
+                    <Route path="help" element={<Help />} />
+
+                    <Route path="help/:slug" element={<HelpTopic />} />
 
                     <Route path="*" element={<NotFound />} />
 

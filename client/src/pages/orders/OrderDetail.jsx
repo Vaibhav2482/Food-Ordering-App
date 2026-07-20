@@ -191,15 +191,7 @@ function OrderDetail() {
 
                         <Divider sx={{ my: 2 }} />
 
-                        <Box sx={{ overflowX: "auto", "&::-webkit-scrollbar": { display: "none" } }}>
-
-                            <Box sx={{ minWidth: 380, px: 0.5 }}>
-
-                                <OrderProgressTrack steps={statusSteps} activeIndex={activeStep} />
-
-                            </Box>
-
-                        </Box>
+                        <OrderProgressTrack steps={statusSteps} activeIndex={activeStep} />
 
                     </>
 

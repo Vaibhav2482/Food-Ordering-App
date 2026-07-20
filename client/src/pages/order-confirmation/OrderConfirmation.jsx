@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 
 import { getOrderById } from "../../services/orderService";
 import { formatCurrency } from "../../utils/formatCurrency";
+import OrderStatusBadge from "../../components/common/OrderStatusBadge";
 
 function OrderConfirmation() {
 
@@ -72,11 +73,13 @@ function OrderConfirmation() {
 
                 <Card sx={{ p: 3, mt: 4, textAlign: "left" }}>
 
-                    <Typography fontWeight={700}>Order #{order.OrderId}</Typography>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
 
-                    <Typography color="text.secondary" sx={{ mb: 0.5 }}>
-                        Status: {order.OrderStatus}
-                    </Typography>
+                        <Typography fontWeight={700}>Order #{order.OrderId}</Typography>
+
+                        <OrderStatusBadge status={order.OrderStatus} />
+
+                    </Box>
 
                     {order.BranchName && (
                         <Typography color="text.secondary" sx={{ mb: 2 }}>

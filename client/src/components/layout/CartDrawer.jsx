@@ -18,6 +18,8 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { formatCurrency } from "../../utils/formatCurrency";
 
+const TINT_FG = "#F58220";
+
 function CartDrawer({ open, onClose }) {
 
     const { items, subtotal, updateQuantity, removeItem } = useCart();
@@ -91,30 +93,32 @@ function CartDrawer({ open, onClose }) {
 
                                 <Box key={item.key}>
 
-                                    <Typography fontWeight={600}>{item.itemName}</Typography>
+                                    <Typography fontWeight={700}>{item.itemName}</Typography>
 
-                                    <Typography variant="body2" color="text.secondary">
+                                    <Typography variant="body2" sx={{ fontWeight: 700, color: TINT_FG }}>
                                         {formatCurrency(item.price)} each
                                     </Typography>
 
                                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: 0.75 }}>
 
-                                        <Box sx={{ display: "flex", alignItems: "center", border: "1px solid #E5E7EB", borderRadius: 2 }}>
+                                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, bgcolor: "#FFE8D1", borderRadius: 5, px: 0.5 }}>
 
                                             <IconButton
                                                 size="small"
                                                 onClick={() => updateQuantity(item, item.quantity - 1)}
+                                                sx={{ color: TINT_FG }}
                                             >
                                                 <RemoveRoundedIcon fontSize="small" />
                                             </IconButton>
 
-                                            <Typography sx={{ px: 1, minWidth: 20, textAlign: "center" }}>
+                                            <Typography fontWeight={700} color={TINT_FG} sx={{ minWidth: 20, textAlign: "center" }}>
                                                 {item.quantity}
                                             </Typography>
 
                                             <IconButton
                                                 size="small"
                                                 onClick={() => updateQuantity(item, item.quantity + 1)}
+                                                sx={{ color: TINT_FG }}
                                             >
                                                 <AddRoundedIcon fontSize="small" />
                                             </IconButton>

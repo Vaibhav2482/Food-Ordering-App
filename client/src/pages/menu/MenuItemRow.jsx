@@ -48,7 +48,12 @@ function AddControl({ quantity, disabled }) {
             }}
         >
 
-            <IconButton size="small" sx={{ color: TINT_FG, p: 0.5 }} data-decrement>
+            {/* This stepper lives in a fixed ~84-100px column, so a true 48px
+                target per button isn't possible without breaking the layout
+                (would force the pill to ~120px+). p:0.75 is a deliberate
+                middle ground — a real improvement on the old p:0.5 without
+                overflowing the row. */}
+            <IconButton size="small" sx={{ color: TINT_FG, p: 0.75 }} data-decrement>
                 <RemoveRoundedIcon sx={{ fontSize: 18 }} />
             </IconButton>
 
@@ -56,7 +61,7 @@ function AddControl({ quantity, disabled }) {
                 {quantity}
             </Typography>
 
-            <IconButton size="small" sx={{ color: TINT_FG, p: 0.5 }} data-increment>
+            <IconButton size="small" sx={{ color: TINT_FG, p: 0.75 }} data-increment>
                 <AddRoundedIcon sx={{ fontSize: 18 }} />
             </IconButton>
 

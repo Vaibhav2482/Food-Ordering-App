@@ -15,6 +15,7 @@ import {
     TextField
 } from "@mui/material";
 import { useEffect, useState } from "react";
+import ImageUploadField from "../../components/common/ImageUploadField";
 
 const emptyErrors = { itemName: "", categoryId: "", price: "" };
 
@@ -38,6 +39,7 @@ function MenuDialog({
         itemName: "",
         description: "",
         price: "",
+        imageUrl: "",
         isAvailable: true,
         isPopular: false,
         isActive: true
@@ -80,6 +82,7 @@ function MenuDialog({
             itemName: selectedMenu.ItemName,
             description: selectedMenu.Description ?? "",
             price: selectedMenu.Price,
+            imageUrl: selectedMenu.ImageUrl ?? "",
             isAvailable: selectedMenu.IsAvailable,
             isPopular: selectedMenu.IsPopular,
             isActive: selectedMenu.IsActive
@@ -95,6 +98,7 @@ function MenuDialog({
             itemName: "",
             description: "",
             price: "",
+            imageUrl: "",
             isAvailable: true,
             isPopular: false,
             isActive: true
@@ -143,6 +147,7 @@ function MenuDialog({
         itemName: formData.itemName,
         description: formData.description,
         price: Number(formData.price),
+        imageUrl: formData.imageUrl || null,
         isAvailable: formData.isAvailable,
         isPopular: formData.isPopular,
         isActive: formData.isActive
@@ -265,6 +270,16 @@ function MenuDialog({
     error={Boolean(errors.price)}
     helperText={errors.price}
 />
+
+                    </Grid>
+
+                    <Grid size={{ xs: 12, md: 6 }}>
+
+                        <ImageUploadField
+                            label="Item Photo"
+                            value={formData.imageUrl}
+                            onChange={(url) => setFormData((prev) => ({ ...prev, imageUrl: url }))}
+                        />
 
                     </Grid>
 

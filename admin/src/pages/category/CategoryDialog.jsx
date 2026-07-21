@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 
 import { useEffect, useState } from "react";
+import ImageUploadField from "../../components/common/ImageUploadField";
 
 const emptyErrors = { categoryName: "", displayOrder: "" };
 
@@ -29,6 +30,7 @@ function CategoryDialog({
     categoryName: "",
     description: "",
     displayOrder: "",
+    imageUrl: "",
     isActive: true
 
 });
@@ -44,6 +46,7 @@ function CategoryDialog({
     categoryName: selectedCategory.CategoryName,
     description: selectedCategory.Description ?? "",
     displayOrder: selectedCategory.DisplayOrder,
+    imageUrl: selectedCategory.ImageUrl ?? "",
     isActive: selectedCategory.IsActive
 
 });
@@ -56,6 +59,7 @@ function CategoryDialog({
     categoryName: "",
     description: "",
     displayOrder: "",
+    imageUrl: "",
     isActive: true
 
 });
@@ -124,6 +128,7 @@ const handleSubmit = () => {
         categoryName: formData.categoryName,
         description: formData.description,
         displayOrder: Number(formData.displayOrder),
+        imageUrl: formData.imageUrl || null,
         isActive: formData.isActive
 
     });
@@ -220,6 +225,16 @@ const handleSubmit = () => {
                 />
             }
             label="Active"
+        />
+
+    </Grid>
+
+    <Grid size={{ xs: 12, md: 6 }}>
+
+        <ImageUploadField
+            label="Category Photo"
+            value={formData.imageUrl}
+            onChange={(url) => setFormData((prev) => ({ ...prev, imageUrl: url }))}
         />
 
     </Grid>
